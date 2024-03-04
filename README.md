@@ -95,7 +95,7 @@ IMAGEMAGICK_BINARY="C:\\Program Files\\ImageMagick-7.1.0-Q16\\magick.exe"
 
 Don't forget to use double backslashes (`\\`) in the path, instead of one.
 
-### I can't install `playsound`: Wheel failed to build
+<del>### I can't install `playsound`: Wheel failed to build
 
 If you're having trouble installing `playsound`, you can try installing it using the following command:
 
@@ -103,7 +103,8 @@ If you're having trouble installing `playsound`, you can try installing it using
 pip install -U wheel
 pip install -U playsound
 ```
-
+</del>
+This requirement is removed, its functionality will be replaced soon
 ## Donate 🎁
 
 If you like and enjoy `MoneyPrinter`, and would like to donate, you can do that by clicking on the button on the right hand side of the repository. ❤️
