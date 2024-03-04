@@ -2,9 +2,7 @@
 
 Automate the creation of YouTube Shorts locally, simply by providing a video topic to talk about.
 
-> **Important** Please make sure you look through existing/closed issues before opening your own. If it's just a question, please join our [discord](https://dsc.gg/fuji-community) and ask there.
 
-> **🎥** Watch the video on [YouTube](https://youtu.be/mkZsaDA2JnA?si=pNne3MnluRVkWQbE).
 
 ## Installation 📥
 
@@ -13,8 +11,8 @@ Automate the creation of YouTube Shorts locally, simply by providing a video top
 After you finished installing Python, you can install `MoneyPrinter` by following the steps below:
 
 ```bash
-git clone https://github.com/FujiwaraChoki/MoneyPrinter.git
-cd MoneyPrinter
+git clone https://github.com/Troptrap/MoneyPrinter-Enhanced.git
+cd MoneyPrinter-Enhanced
 
 # Install requirements
 pip install -r requirements.txt
@@ -22,13 +20,11 @@ pip install -r requirements.txt
 # Copy .env.example and fill out values
 cp .env.example .env
 
-# Run the backend server
+# Run the server
 cd Backend
 python main.py
 
-# Run the frontend server
-cd ../Frontend
-python -m http.server 3000
+
 ```
 
 See [`.env.example`](.env.example) for the required environment variables.
@@ -38,11 +34,11 @@ If you need help, open [EnvironmentVariables.md](EnvironmentVariables.md) for mo
 ## Usage 🛠️
 
 1. Copy the `.env.example` file to `.env` and fill in the required values
-1. Open `http://localhost:3000` in your browser
+1. Open `http://127.0.0.1:8080` in your browser
 1. Enter a topic to talk about
 1. Click on the "Generate" button
 1. Wait for the video to be generated
-1. The video's location is `MoneyPrinter/output.mp4`
+1. The video's location is `MoneyPrinter/Frontend/output.mp4`
 
 ## Music 🎵
 
