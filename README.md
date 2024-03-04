@@ -42,12 +42,13 @@ If you need help, open [EnvironmentVariables.md](EnvironmentVariables.md) for mo
 
 ## Music 🎵
 
-To use your own music, compress all your MP3 Files into a ZIP file and upload it somewhere. Provide the link to the ZIP file in the Frontend.
+<del> To use your own music, compress all your MP3 Files into a ZIP file and upload it somewhere. Provide the link to the ZIP file in the Frontend.
+</del>
 
-It is recommended to use Services such as [Filebin](https://filebin.net) to upload your ZIP file.
-
+<del>It is recommended to use Services such as [Filebin](https://filebin.net) to upload your ZIP file.
 You can also just move your MP3 files into the `Songs` folder.
-
+</del> 
+There is a built in API for music, it finds music from Youtube Audio Library (free to use, CC0)
 ## Fonts 🅰
 
 Add your fonts to the `fonts/` folder, and load them by specifying the font name on line `124` in `Backend/video.py`.
