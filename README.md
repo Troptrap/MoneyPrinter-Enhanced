@@ -1,6 +1,6 @@
 # MoneyPrinter 💸
 
-Automate the creation of YouTube Shorts locally, simply by providing a video topic to talk about.
+Automate the creation of YouTube videos locally, simply by providing a video topic to talk about.
 
 
 
