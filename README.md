@@ -27,6 +27,8 @@ python main.py
 
 ```
 
+If you are installing on Windows, you will also need: - SoX: http://sox.sourceforge.net/
+
 See [`.env.example`](.env.example) for the required environment variables.
 
 If you need help, open [EnvironmentVariables.md](EnvironmentVariables.md) for more information.
