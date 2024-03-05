@@ -99,26 +99,12 @@ Don't forget to use double backslashes (`\\`) in the path, instead of one.
 
 <del>### I can't install `playsound`: Wheel failed to build
 
-If you're having trouble installing `playsound`, you can try installing it using the following command:
-
-```bash
-pip install -U wheel
-pip install -U playsound
-```
-</del>
-This requirement is removed, its functionality will be replaced soon
-## Donate 🎁
-
-If you like and enjoy `MoneyPrinter`, and would like to donate, you can do that by clicking on the button on the right hand side of the repository. ❤️
-You will have your name (and/or logo) added to this repository as a supporter as a sign of appreciation.
 
 ## Contributing 🤝
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-## Star History 🌟
 
-[![Star History Chart](https://api.star-history.com/svg?repos=FujiwaraChoki/MoneyPrinter&type=Date)](https://star-history.com/#FujiwaraChoki/MoneyPrinter&Date)
 
 ## License 📝
 
