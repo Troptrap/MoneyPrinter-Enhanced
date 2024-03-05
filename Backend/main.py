@@ -263,6 +263,8 @@ def generate():
         voice = data["voice"]
         ttsengine = data["ttsengine"]
         voice_prefix = voice[:2]
+        vformat = data["format"]
+        print(colored("Chosen format: "+vformat, "yellow"))
 
 
         if not voice:
@@ -390,7 +392,7 @@ def generate():
 
 
         
-        combined_video_path = combine_videos(video_paths, ttsoutput_duration, 10)
+        combined_video_path = combine_videos(video_paths, ttsoutput_duration, 10,vformat)
         # Put everything together
         try:
             final_video_path = generate_video('../temp/videoaudio.mp4', '../temp/ttsoutput.mp3', subtitles_path, subtitles_position)

@@ -39,6 +39,30 @@
 					name="videoSubject"
 					id="videoSubject"
 					class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"></textarea>
+
+				<p class="text-center text-gray-700">Choose video format</p>
+				<form id="videoform" action="">
+					<div class="radio-inputs">
+						<label class="radio">
+							<input
+								type="radio"
+								name="vformat"
+								id="landscape"
+								onclick="getformat(this)" />
+							<span class="mode">Landscape</span>
+						</label>
+						<label class="radio">
+							<input
+								type="radio"
+								name="vformat"
+								id="portrait"
+								checked
+								onclick="getformat(this)" />
+							<span class="mode">Portrait</span>
+						</label>
+					</div>
+				</form>
+
 				<p class="text-center text-gray-700">Choose TTS engine</p>
 				<form id="ttsform" action="">
 					<div class="radio-inputs">
@@ -48,7 +72,7 @@
 								name="TTSengine"
 								id="tiktok"
 								onclick="getengine(this)" />
-							<span class="name">TikTok</span>
+							<span class="eng">TikTok</span>
 						</label>
 						<label class="radio">
 							<input
@@ -57,7 +81,7 @@
 								id="microsoft"
 								checked
 								onclick="getengine(this)" />
-							<span class="name">Microsoft</span>
+							<span class="eng">Microsoft</span>
 						</label>
 					</div>
 				</form>
@@ -305,13 +329,8 @@
 					<div id="audiolibraryresults">
 						<table id="audiolibrarytable"></table>
 					</div>
-						<input
-							type="hidden"
-							name="bgSong"
-							id="bgSong"
-							value="" />
-					<div id="songplayer">
-					</div>
+					<input type="hidden" name="bgSong" id="bgSong" value="" />
+					<div id="songplayer"></div>
 					<label
 						for="youtubeUploadToggle"
 						class="flex items-center text-blue-600">

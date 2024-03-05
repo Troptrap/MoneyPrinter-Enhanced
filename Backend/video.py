@@ -142,9 +142,82 @@ def generate_subtitles(audio_path: str, sentences: List[str], audio_clips: List[
     print(colored("[+] Subtitles generated.", "green"))
 
     return subtitles_path
+    
+def resize_to_portrait(video_path, input_duration, idx):
+        probe = ffmpeg.probe(video_path)
+        video_stream = next(s for s in probe['streams'] if s['codec_type'] == 'video')
+        width = video_stream['width']
+        height = video_stream['height']
+
+         # Calculate aspect ratio
+        aspect_ratio = width / height
+
+         # Determine cropping and resizing parameters
+        if aspect_ratio < 0.5625:  # Landscape video (wider than tall)
+          new_width = width
+          new_height = round(width / 0.5625)  # Maintain aspect ratio for landscape
+        else:  # Portrait video (taller than wide)
+          new_height = height
+          new_width = round(0.5625 * height)  # Maintain aspect ratio for portrait
+
+        # Ensure new dimensions are within valid ranges to avoid errors
+        new_width = max(new_width, 1)  # Minimum width of 1 pixel
+        new_height = max(new_height, 1)  # Minimum height of 1 pixel
+
+         # Calculate x and y coordinates for centered cropping
+        x = (width - new_width) // 2
+        y = (height - new_height) // 2
+        
+        (
+            ffmpeg.input(video_path,ss=0,t=input_duration)
+            .video
+              #Remove audio
+            .filter('crop',w=new_width, h=new_height, x=x, y=y) # Crop to the same aspect ratio
+            .filter('scale', 1080, 1920) # Resize to the same resolution
+            .filter('fps', fps=30) # Set fps to 30
+            .output('../temp/'+str(idx)+'.mpg',vcodec='libx264', format='mp4')
+            .run()
+        )
+def resize_to_landscape(video_path,input_duration,idx):
+        probe = ffmpeg.probe(video_path)
+        video_stream = next(s for s in probe['streams'] if s['codec_type'] == 'video')
+        width = video_stream['width']
+        height = video_stream['height']
+        
+        # Calculate aspect ratio
+        aspect_ratio = width / height
+        
+        # Determine cropping and resizing parameters
+        if aspect_ratio > 1.7777:  # If the video is wider than 16:9
+            new_height = height
+            new_width = round(height * 1.7777)  # Adjust width to maintain 16:9 aspect ratio
+        else:  # If the video is narrower than 16:9
+            new_width = width
+            new_height = round(width / 1.7777)  # Adjust height to maintain 16:9 aspect ratio
+        
+        # Ensure new dimensions are within valid ranges to avoid errors
+        new_width = max(new_width, 1)  # Minimum width of 1 pixel
+        new_height = max(new_height, 1)  # Minimum height of 1 pixel
+        
+        # Calculate x and y coordinates for centered cropping
+        x = (width - new_width) // 2
+        y = (height - new_height) // 2
+        
+        (
+            ffmpeg
+            .input(video_path, ss=0, t=input_duration)
+            .video
+            # Remove audio
+            .filter('crop', w=new_width, h=new_height, x=x, y=y)  # Crop to the same aspect ratio
+            .filter('scale', 1920, 1080)  # Resize to 1920x1080 for YouTube
+            .filter('fps', fps=30)  # Set fps to 30
+            .output('../temp/'+str(idx)+'.mpg', vcodec='libx264', format='mp4')  # Output format changed to mp4
+            .run()
+        )
 
 
-def combine_videos(video_paths: List[str], max_duration: int, max_clip_duration: int) -> str:
+
+def combine_videos(video_paths: List[str], max_duration: int, max_clip_duration: int, vformat: str) -> str:
     """
     Combines a list of videos into one video and returns the path to the combined video.
 
@@ -204,51 +277,17 @@ def combine_videos(video_paths: List[str], max_duration: int, max_clip_duration:
         if input_duration == 0:
           break
 
-        print('this dur after:'+str(input_duration))
+        print('This clip duration after: '+str(input_duration))
         
           
         # Apply filters to single clips
-        
-        probe = ffmpeg.probe(video_path)
-        video_stream = next(s for s in probe['streams'] if s['codec_type'] == 'video')
-        width = video_stream['width']
-        height = video_stream['height']
-
-         # Calculate aspect ratio
-        aspect_ratio = width / height
-
-         # Determine cropping and resizing parameters
-        if aspect_ratio < 0.5625:  # Landscape video (wider than tall)
-          new_width = width
-          new_height = round(width / 0.5625)  # Maintain aspect ratio for landscape
-        else:  # Portrait video (taller than wide)
-          new_height = height
-          new_width = round(0.5625 * height)  # Maintain aspect ratio for portrait
-
-        # Ensure new dimensions are within valid ranges to avoid errors
-        new_width = max(new_width, 1)  # Minimum width of 1 pixel
-        new_height = max(new_height, 1)  # Minimum height of 1 pixel
-
-         # Calculate x and y coordinates for centered cropping
-        x = (width - new_width) // 2
-        y = (height - new_height) // 2
-        
-        
-        
-        
-        
-        
-        
-        (
-            ffmpeg.input(video_path,ss=0,t=input_duration)
-            .video
-              #Remove audio
-            .filter('crop',w=new_width, h=new_height, x=x, y=y) # Crop to the same aspect ratio
-            .filter('scale', 1080, 1920) # Resize to the same resolution
-            .filter('fps', fps=30) # Set fps to 30
-            .output('../temp/'+str(idx)+'.mpg',vcodec='libx264', format='mp4')
-            .run()
-        )
+        if vformat=="landscape":
+          resize_to_landscape(video_path, input_duration,idx)
+        elif vformat=="portrait":
+          resize_to_portrait(video_path,input_duration,idx)
+        else: 
+          print(colored("Something is wrong with video mode..", "red"))
+          break
         # Increment duration until it meets the audio duration from TTS
         tot_dur += input_duration
         idx +=1

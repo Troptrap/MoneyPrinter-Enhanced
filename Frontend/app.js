@@ -18,6 +18,7 @@ const advancedOptionsToggle = document.querySelector("#advancedOptionsToggle");
 const bgSong = document.getElementById("bgSong");
 const PlayerSelector = document.getElementById("songplayer");
 let currentTTS = "microsoft";
+let videoformat = "portrait"
 
 advancedOptionsToggle.addEventListener("click", () => {
 	// Change Emoji, from ▼ to ▲ and vice versa
@@ -104,6 +105,7 @@ const generateVideo = () => {
 		aiModel: aiModelValue,
 		ttsengine: currentTTS,
 		voice: voiceValue,
+		format: videoformat,
 		paragraphNumber: paragraphNumberValue,
 		automateYoutubeUpload: youtubeUpload,
 		useMusic: useMusicToggleState,
@@ -162,6 +164,10 @@ function getengine(e) {
 		mslang.classList.add("hidden");
 		langlist.classList.add("hidden");
 	}
+}
+function getformat(e){
+  videoformat = e.id;
+  console.log(videoformat);
 }
 
 function msft_voice(loc) {
