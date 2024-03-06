@@ -560,7 +560,7 @@ fetch("microsoft_voices.json").then((response) => {
 			.then((response) => response.json())
 			.then((data) => {
 				if (data["downloaded"] == "true") {
-					src = data["filename"];
+					src = window.location.origin.data["filename"];
 					PlayerSelector.innerHTML = `<audio controls autoplay>
   <source src=${src}>
 Your browser does not support the audio element.
