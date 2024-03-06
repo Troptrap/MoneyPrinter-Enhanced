@@ -1,5 +1,6 @@
 const videoSubject = document.querySelector("#videoSubject");
 const aiModel = document.querySelector("#aiModel");
+const g4fmodel = document.querySelector("#g4fm");
 const voice = document.querySelector("#voice");
 const paragraphNumber = document.querySelector("#paragraphNumber");
 const youtubeToggle = document.querySelector("#youtubeUploadToggle");
@@ -18,7 +19,31 @@ const advancedOptionsToggle = document.querySelector("#advancedOptionsToggle");
 const bgSong = document.getElementById("bgSong");
 const PlayerSelector = document.getElementById("songplayer");
 let currentTTS = "microsoft";
-let videoformat = "portrait"
+let videoformat = "portrait";
+
+function listFreeModels() {
+	if (aiModel.value === "g4f") {
+		g4fmodel.classList.remove("hidden");
+		fetch("/g4f-models")
+			.then((response) => response.json())
+			.then((data) => {
+				for (let item of data) {
+					let option = document.createElement("option");
+					option.text = item;
+					option.value = item;
+					g4fmodel.appendChild(option);
+				}
+			});
+	} else {
+		g4fmodel.innerHTML = "";
+		g4fmodel.classList.add("hidden");
+	}
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+	listFreeModels();
+	aiModel.addEventListener("change",listFreeModels);
+});
 
 advancedOptionsToggle.addEventListener("click", () => {
 	// Change Emoji, from ▼ to ▲ and vice versa
@@ -83,6 +108,7 @@ const generateVideo = () => {
 	// Get values from input fields
 	const videoSubjectValue = videoSubject.value;
 	const aiModelValue = aiModel.value;
+	const g4fmodelValue = g4fmodel.value;
 	const voiceValue =
 		currentTTS == "tiktok"
 			? tiktokvoice.value
@@ -103,6 +129,7 @@ const generateVideo = () => {
 	const data = {
 		videoSubject: videoSubjectValue,
 		aiModel: aiModelValue,
+		g4fmodel: g4fmodelValue,
 		ttsengine: currentTTS,
 		voice: voiceValue,
 		format: videoformat,
@@ -165,9 +192,9 @@ function getengine(e) {
 		langlist.classList.add("hidden");
 	}
 }
-function getformat(e){
-  videoformat = e.id;
-  console.log(videoformat);
+function getformat(e) {
+	videoformat = e.id;
+	console.log(videoformat);
 }
 
 function msft_voice(loc) {
@@ -560,7 +587,7 @@ fetch("microsoft_voices.json").then((response) => {
 			.then((response) => response.json())
 			.then((data) => {
 				if (data["downloaded"] == "true") {
-					src = window.location.origin.data["filename"];
+					src = data["filename"];
 					PlayerSelector.innerHTML = `<audio controls autoplay>
   <source src=${src}>
 Your browser does not support the audio element.

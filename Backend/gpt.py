@@ -18,7 +18,7 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 genai.configure(api_key=GOOGLE_API_KEY)
 
 
-def generate_response(prompt: str, ai_model: str) -> str:
+def generate_response(prompt: str, ai_model: str, g4f_model: str) -> str:
     """
     Generate a script for a video, depending on the subject of the video.
 
@@ -34,10 +34,11 @@ def generate_response(prompt: str, ai_model: str) -> str:
     """
 
     if ai_model == 'g4f':
+        print("SELECTED FREE MODEL: "+ g4f_model)
 
         response = g4f.ChatCompletion.create(
 
-            model=g4f.models.mixtral_8x7b,
+            model=g4f_model,
 
             messages=[{"role": "user", "content": prompt}],
 
@@ -65,7 +66,7 @@ def generate_response(prompt: str, ai_model: str) -> str:
 
     return response
 
-def generate_script(video_subject: str, paragraph_number: int, ai_model: str, voice: str, customPrompt: str) -> str:
+def generate_script(video_subject: str, paragraph_number: int, ai_model: str, voice: str, customPrompt: str, g4f_model: str) -> str:
 
     """
     Generate a script for a video, depending on the subject of the video, the number of paragraphs, and the AI model.
@@ -122,7 +123,7 @@ def generate_script(video_subject: str, paragraph_number: int, ai_model: str, vo
     """
 
     # Generate script
-    response = generate_response(prompt, ai_model)
+    response = generate_response(prompt, ai_model, g4f_model)
 
     print(colored(response, "cyan"))
 
@@ -154,7 +155,7 @@ def generate_script(video_subject: str, paragraph_number: int, ai_model: str, vo
         return None
 
 
-def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str) -> List[str]:
+def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str, g4f_model: str) -> List[str]:
     """
     Generate a JSON-Array of search terms for stock videos,
     depending on the subject of a video.
@@ -194,7 +195,7 @@ def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str
     """
 
     # Generate search terms
-    response = generate_response(prompt, ai_model)
+    response = generate_response(prompt, ai_model, g4f_model)
 
     # Parse response into a list of search terms
     search_terms = []
@@ -225,7 +226,7 @@ def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str
     return search_terms
 
 
-def generate_metadata(video_subject: str, script: str, ai_model: str) -> Tuple[str, str, List[str]]:  
+def generate_metadata(video_subject: str, script: str, ai_model: str, g4f_model) -> Tuple[str, str, List[str]]:  
     """  
     Generate metadata for a YouTube video, including the title, description, and keywords.  
   
@@ -244,7 +245,7 @@ def generate_metadata(video_subject: str, script: str, ai_model: str) -> Tuple[s
     """  
   
     # Generate title  
-    title = generate_response(title_prompt, ai_model).strip()  
+    title = generate_response(title_prompt, ai_model,g4f_model).strip()  
     
     # Build prompt for description  
     description_prompt = f"""  
@@ -254,9 +255,9 @@ def generate_metadata(video_subject: str, script: str, ai_model: str) -> Tuple[s
     """  
   
     # Generate description  
-    description = generate_response(description_prompt, ai_model).strip()  
+    description = generate_response(description_prompt, ai_model,g4f_model).strip()  
   
     # Generate keywords  
-    keywords = get_search_terms(video_subject, 6, script, ai_model)  
+    keywords = get_search_terms(video_subject, 6, script, ai_model, g4f_model)  
 
     return title, description, keywords  

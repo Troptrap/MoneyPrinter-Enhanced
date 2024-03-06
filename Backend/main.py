@@ -69,14 +69,14 @@ def grabSong(songid):
   if not fullpath.startswith(base_path):
         raise Exception("not allowed")
   if os.path.exists(fullpath):
-    return jsonify({'downloaded':'true', 'filename':fullpath[2:]})
+    return jsonify({'downloaded':'true', 'filename':fullpath})
   else:
     songurl = 'http://docs.google.com/uc?export=open&id='+songid
     
     gdwn = subprocess.run(['wget', songurl, '-O', fullpath])
     
     if gdwn.returncode == 0:
-      return jsonify({'downloaded':'true', 'filename':fullpath[2:]})
+      return jsonify({'downloaded':'true', 'filename':fullpath})
     else:
       return jsonify({'downloaded':'false'})
 
@@ -246,6 +246,7 @@ def generate():
         data = request.get_json()
         paragraph_number = int(data.get('paragraphNumber', 1))  # Default to 1 if not provided
         ai_model = data.get('aiModel')  # Get the AI model selected by the user
+        g4f_model = data.get('g4fmodel')  # Get the AI model selected by the user
         
         subtitles_position = data.get('subtitlesPosition')  # Position of the subtitles in the video
 
@@ -280,11 +281,11 @@ def generate():
             print(colored("[!] No voice was selected. Defaulting to \"en_us_001\"", "yellow"))
             voice = "en_us_001"
             voice_prefix = voice[:2]
-        script = generate_script(data["videoSubject"], paragraph_number, ai_model, voice, data["customPrompt"])  # Pass the AI model to the script generation
+        script = generate_script(data["videoSubject"], paragraph_number, ai_model, voice, data["customPrompt"], g4f_model)  # Pass the AI model to the script generation
         print(script)
         # Generate search terms
         search_terms = get_search_terms(
-            data["videoSubject"], AMOUNT_OF_STOCK_VIDEOS, script, ai_model
+            data["videoSubject"], AMOUNT_OF_STOCK_VIDEOS, script, ai_model,g4f_model
         )
 
         # Split script into sentences
@@ -410,7 +411,7 @@ def generate():
             final_video_path = None
 
         # Define metadata for the video, we will display this to the user, and use it for the YouTube upload
-        title, description, keywords = generate_metadata(data["videoSubject"], script, ai_model)
+        title, description, keywords = generate_metadata(data["videoSubject"], script, ai_model, g4f_model)
 
         print(colored("[-] Metadata for YouTube upload:", "blue"))
         print(colored("   Title: ", "blue"))
