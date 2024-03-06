@@ -65,17 +65,18 @@ def grabSong(songid):
   songfile = songid+'.mp3'
   
   fullpath = os.path.normpath(os.path.join(base_path, songfile))
+  print(fullpath)
   if not fullpath.startswith(base_path):
         raise Exception("not allowed")
   if os.path.exists(fullpath):
-    return jsonify({'downloaded':'true', 'filename':songfile})
+    return jsonify({'downloaded':'true', 'filename':fullpath[2:]})
   else:
     songurl = 'http://docs.google.com/uc?export=open&id='+songid
-    cmd = ['wget', songurl, '-O', songfile]
-    gdwn = subprocess.run(cmd)
+    
+    gdwn = subprocess.run(['wget', songurl, '-O', fullpath])
     
     if gdwn.returncode == 0:
-      return jsonify({'downloaded':'true', 'filename':songfile})
+      return jsonify({'downloaded':'true', 'filename':fullpath[2:]})
     else:
       return jsonify({'downloaded':'false'})
 
