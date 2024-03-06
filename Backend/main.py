@@ -54,12 +54,20 @@ def list_to_dict(lst):
 
    return res_dict
    
-   
+@app.route('/g4f-models', methods=['GET'])
+def g4f_models_list():
+  g4fm = g4f.Model.__all__()
+  return g4fm
    
 @app.route('/songs/download/<songid>', methods=['GET'])
 def grabSong(songid):
-  songfile = '../music/'+songid+'.mp3'
-  if os.path.exists(songfile):
+  base_path = "../music"
+  songfile = songid+'.mp3'
+  
+  fullpath = os.path.normpath(os.path.join(base_path, songfile))
+  if not fullpath.startswith(base_path):
+        raise Exception("not allowed")
+  if os.path.exists(fullpath):
     return jsonify({'downloaded':'true', 'filename':songfile})
   else:
     songurl = 'http://docs.google.com/uc?export=open&id='+songid
