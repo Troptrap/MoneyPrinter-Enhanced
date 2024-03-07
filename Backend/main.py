@@ -329,7 +329,7 @@ def generate():
           
         # Concatenate videos
         if use_music:
-          music_file=data['bgSong']
+          music_file=os.path.normpath(data['bgSong'])
           process_music(music_file)
         ttsoutput_duration = sox.file_info.duration(tts_path)
         # Generate a script
