@@ -330,7 +330,7 @@ def generate():
         # Concatenate videos
         if use_music:
           music_file=os.path.abspath(data['bgSong'])
-          print("Music File: "+music_file)
+          print("Processing music File: "+music_file)
           process_music(music_file)
         ttsoutput_duration = sox.file_info.duration(tts_path)
         # Generate a script

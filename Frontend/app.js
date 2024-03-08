@@ -31,6 +31,9 @@ function listFreeModels() {
 					let option = document.createElement("option");
 					option.text = item;
 					option.value = item;
+					if (option.value == "gpt-3.5-turbo-0613") {
+						option.setAttribute("selected", "selected");
+					}
 					g4fmodel.appendChild(option);
 				}
 			});
@@ -42,7 +45,7 @@ function listFreeModels() {
 
 document.addEventListener("DOMContentLoaded", () => {
 	listFreeModels();
-	aiModel.addEventListener("change",listFreeModels);
+	aiModel.addEventListener("change", listFreeModels);
 });
 
 advancedOptionsToggle.addEventListener("click", () => {
