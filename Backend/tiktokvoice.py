@@ -214,24 +214,24 @@ def tts(
 def concat_audio(paths:List[str])->str:
   cbn = sox.Combiner()
   cbn.build(
-    paths, '../temp/ttsoutput.mp3', 'concatenate'
+    paths, os.path.abspath('../temp/ttsoutput.mp3'), 'concatenate'
 )
 def process_music(input_file):
   # Create a transformer
   tfm = sox.Transformer()
-  target_rate = sox.file_info.sample_rate('../temp/ttsoutput.mp3')
+  target_rate = sox.file_info.sample_rate(os.path.abspath('../temp/ttsoutput.mp3'))
   # Set the volume to 20% of the original
   tfm.rate(samplerate=target_rate)
   tfm.norm(db_level = -8)
   tfm.vol(0.15)
   # Apply the transformation to the input file and create the output file
   
-  lowvol_file = '../temp/lowvolmusic.mp3'
+  lowvol_file = os.path.abspath('../temp/lowvolmusic.mp3')
   tfm.build(input_file, lowvol_file)
   
   # Print a success message
   print(f"The volume of {input_file} has been reduced to 15% and saved as {lowvol_file}.")
-  duration_audio1 = sox.file_info.duration('../temp/ttsoutput.mp3')
+  duration_audio1 = sox.file_info.duration(os.path.abspath('../temp/ttsoutput.mp3'))
   print('TTS duration: '+str(duration_audio1))
   cmb = sox.Combiner()
 
@@ -256,12 +256,12 @@ def process_music(input_file):
   
   # Combine audio1.mp3 and the modified audio2.mp3
   print('Trying to mix voice and music..')
-  cmb.build(['../temp/ttsoutput.mp3', audio2_path], '../temp/mixed_audio.mp3', 'mix')
-  duration_mixed = sox.file_info.duration('../temp/mixed_audio.mp3')
+  cmb.build([os.path.abspath('../temp/ttsoutput.mp3'), audio2_path], os.path.abspath('../temp/mixed_audio.mp3'), 'mix')
+  duration_mixed = sox.file_info.duration(os.path.abspath('../temp/mixed_audio.mp3'))
   print('Mixed file duration: '+str(duration_mixed))
   # Remove the temporary file if it was created
   print("Succesfull mixing! Cleaning ..")
   if 'repeated' in audio2_path or 'trimmed' in audio2_path:
       os.remove(audio2_path)
   
-  os.rename('../temp/mixed_audio.mp3','../temp/ttsoutput.mp3')
+  os.rename(os.path.abspath('../temp/mixed_audio.mp3'),os.path.abspath('../temp/ttsoutput.mp3'))

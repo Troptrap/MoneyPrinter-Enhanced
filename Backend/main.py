@@ -305,7 +305,7 @@ def generate():
                           "data": [],
                       }
                   )
-          current_tts_path = f"../temp/{fcount}.mp3"
+          current_tts_path = os.path.abspath(f"../temp/{fcount}.mp3")
           if ttsengine=="tiktok":
             tts(sentence, voice, filename=current_tts_path)
           elif ttsengine=="microsoft":
@@ -320,7 +320,7 @@ def generate():
           # Combine all TTS files using sox
         final_audio = concat_audio(paths)
 
-        tts_path = "../temp/ttsoutput.mp3"
+        tts_path = os.path.abspath('../temp/ttsoutput.mp3')
         try:
           subtitles_path = generate_subtitles(audio_path=tts_path, sentences=sentences, audio_clips=paths, voice=voice_prefix)
         except Exception as e:
@@ -329,7 +329,8 @@ def generate():
           
         # Concatenate videos
         if use_music:
-          music_file=os.path.normpath(data['bgSong'])
+          music_file=os.path.abspath(data['bgSong'])
+          print("Music File: "+music_file)
           process_music(music_file)
         ttsoutput_duration = sox.file_info.duration(tts_path)
         # Generate a script
