@@ -59,6 +59,27 @@ def g4f_models_list():
   g4fm = g4f.Model.__all__()
   return g4fm
    
+   
+@app.route('/pexels/photo/search/<term>', methods=['GET'])  
+def search_pexels_photos(term):
+  // TODO
+@app.route('/pexels/video/search/<term>', methods=['GET'])  
+def search_pexels_videos(term):
+  // TODO
+@app.route('/pixabay/photo/search/<term>', methods=['GET'])  
+def search_pixabay_photos(term):
+  // TODO
+@app.route('/pixabay/video/search/<term>', methods=['GET'])  
+def search_pixabay_videos(term):
+  // TODO
+@app.route('/unsplash/photo/search/<term>', methods=['GET'])  
+def search_unsplash_photos(term):
+  // TODO
+@app.route('/flickr/photo/search/<term>', methods=['GET'])  
+def search_flickr_photos(term):
+  // TODO
+   
+   
 @app.route('/songs/download/<songid>', methods=['GET'])
 def grabSong(songid):
   base_path = "../music"
@@ -333,9 +354,7 @@ def generate():
           print("Processing music File: "+music_file)
           process_music(music_file)
         ttsoutput_duration = sox.file_info.duration(tts_path)
-        # Generate a script
 
-        # Search for a video of the given search term
         video_urls = []
         
         # Defines how many results it should query and search through
@@ -343,8 +362,7 @@ def generate():
         
         # Defines the minimum duration of each clip
         min_dur = 10
-        # Loop through all search terms,
-        # and search for a video of the given search term        
+
         for search_term in search_terms:
           if not GENERATING:
             return jsonify(
@@ -406,7 +424,7 @@ def generate():
         combined_video_path = combine_videos(video_paths, ttsoutput_duration, 10,vformat)
         # Put everything together
         try:
-            final_video_path = generate_video('../temp/videoaudio.mp4', '../temp/ttsoutput.mp3', subtitles_path, subtitles_position)
+            final_video_path = generate_video('../temp/videoaudio.mp4', tts_path, subtitles_path, subtitles_position)
         except Exception as e:
             print(colored(f"[-] Error generating final video: {e}", "red"))
             final_video_path = None

@@ -330,9 +330,7 @@ def generate_video(combined_video_path: str, tts_path: str, subtitles_path: str,
     """
   
 
-    # Split the subtitles position into horizontal and vertical
-    #horizontal_subtitles_position, vertical_subtitles_position = subtitles_position.split(",")
-   # horizontal_subtitles_position, vertical_subtitles_position = subtitles_position.split(",")
+
 
     # Create a stream object from the combined video
     video_stream = ffmpeg.input(combined_video_path)

@@ -69,8 +69,7 @@ VOICES = [
     "en_male_funny",  # wacky
     "en_female_emotional",  # peaceful
 ]
-with open('tiktok_voices.json','w') as f:
-  json.dump(VOICES, f)
+
 
 ENDPOINTS = [
     "https://tiktok-tts.weilnet.workers.dev/api/generation",
