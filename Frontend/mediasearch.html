@@ -1,0 +1,81 @@
+<!doctype html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link
+		rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css" />
+	<link rel="stylesheet" href="mediasearch.css" type="text/css" media="all" />
+	<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+	<script>
+		eruda.init();
+	</script>
+	<title>Media Search</title>
+</head>
+<body class="bg-blue-100 justify-items-center">
+	<button
+		id="closewindow"
+		type="submit"
+		class="sticky top-0 w-full bg-red-500 hover:bg-red-300 duration-100 linear text-blue px-1 py-1 rounded-md">
+		CLOSE(X)
+	</button>
+	<div class="flex">
+		<div class="sources" id="media-search">
+			<h1 class="text-4xl py-4">Find Media</h1>
+
+			<input
+				class="py-2 px-2 w-10/12"
+				type="search"
+				name="find"
+				id="find" />
+			<div class="sources">
+				<div class="flex-row">
+					<input
+						type="submit"
+						name="source"
+						id="Pexels-Video"
+						value="Pexels-Video"
+						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+
+					<input
+						type="submit"
+						name="source"
+						id="Pixabay-Video"
+						value="Pixabay-Video"
+						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+				</div>
+				<div class="flex-row">
+					<input
+						type="submit"
+						name="source"
+						id="Pexels-Photo"
+						value="Pexels-Photo"
+						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+
+					<input
+						type="submit"
+						name="source"
+						id="Pixabay-Photo"
+						value="Pixabay-Photo"
+						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+				</div>
+				<div class="flex-row">
+					<input
+						type="submit"
+						name="source"
+						id="Unsplash-Photo"
+						value="Unsplash-Photo"
+						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+
+					<input
+						type="submit"
+						name="source"
+						id="Flickr-Photo"
+						value="Flickr Photo"
+						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+				</div>
+			</div>
+			<div class="sources" id="media-results"></div>
+		</div>
+	</div>
+	<script src="mediasearch.js" type="text/javascript" charset="utf-8"></script>
+</body>

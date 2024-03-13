@@ -9,7 +9,7 @@ from typing import List
 from termcolor import colored
 from dotenv import load_dotenv
 from datetime import timedelta
-import ffmpeg 
+import ffmpeg
 import sox
 
 load_dotenv("../.env")
@@ -17,7 +17,7 @@ load_dotenv("../.env")
 ASSEMBLY_AI_API_KEY = os.getenv("ASSEMBLY_AI_API_KEY")
 
 
-def save_video(video_url: str,count: int, directory: str = "../temp"):
+def save_video(video_url: str, count: int, directory: str = "../temp"):
     """
     Saves a video from a given URL and returns the path to the video.
 
@@ -49,7 +49,7 @@ def __generate_subtitles_assemblyai(audio_path: str, voice: str) -> str:
 
     language_mapping = {
         "br": "pt",
-        "id": "en", #AssemblyAI doesn't have Indonesian 
+        "id": "en",  # AssemblyAI doesn't have Indonesian
         "jp": "ja",
         "kr": "ko",
     }
@@ -83,14 +83,14 @@ def __generate_subtitles_locally(sentences: List[str], audio_files: List[str]) -
         # Convert total seconds to the SRT time format: HH:MM:SS,mmm
         if total_seconds == 0:
             return "0:00:00,0"
-        return str(timedelta(seconds=total_seconds)).rstrip('0').replace('.', ',')
+        return str(timedelta(seconds=total_seconds)).rstrip("0").replace(".", ",")
 
     start_time = 0
     subtitles = []
 
     for i, (sentence, audio_file) in enumerate(zip(sentences, audio_files), start=1):
         # Create a stream object from the audio file
-        audio_stream = ffmpeg.input(audio_file)
+        ffmpeg.input(audio_file)
         # Get the duration of the audio stream in seconds
         duration = sox.file_info.duration(audio_file)
         end_time = start_time + duration
@@ -101,9 +101,11 @@ def __generate_subtitles_locally(sentences: List[str], audio_files: List[str]) -
         start_time += duration  # Update start time for the next subtitle
 
     return "\n".join(subtitles)
-    
 
-def generate_subtitles(audio_path: str, sentences: List[str], audio_clips: List[str], voice: str) -> str:
+
+def generate_subtitles(
+    audio_path: str, sentences: List[str], audio_clips: List[str], voice: str
+) -> str:
     """
     Generates subtitles from a given audio file and returns the path to the subtitles.
 
@@ -142,82 +144,101 @@ def generate_subtitles(audio_path: str, sentences: List[str], audio_clips: List[
     print(colored("[+] Subtitles generated.", "green"))
 
     return subtitles_path
-    
+
+
 def resize_to_portrait(video_path, input_duration, idx):
-        probe = ffmpeg.probe(video_path)
-        video_stream = next(s for s in probe['streams'] if s['codec_type'] == 'video')
-        width = video_stream['width']
-        height = video_stream['height']
+    probe = ffmpeg.probe(video_path)
+    video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
+    width = video_stream["width"]
+    height = video_stream["height"]
 
-         # Calculate aspect ratio
-        aspect_ratio = width / height
+    # Calculate aspect ratio
+    aspect_ratio = width / height
 
-         # Determine cropping and resizing parameters
-        if aspect_ratio < 0.5625:  # Landscape video (wider than tall)
-          new_width = width
-          new_height = round(width / 0.5625)  # Maintain aspect ratio for landscape
-        else:  # Portrait video (taller than wide)
-          new_height = height
-          new_width = round(0.5625 * height)  # Maintain aspect ratio for portrait
+    # Determine cropping and resizing parameters
+    if aspect_ratio < 0.5625:  # Landscape video (wider than tall)
+        new_width = width
+        new_height = round(width / 0.5625)  # Maintain aspect ratio for landscape
+    else:  # Portrait video (taller than wide)
+        new_height = height
+        new_width = round(0.5625 * height)  # Maintain aspect ratio for portrait
 
-        # Ensure new dimensions are within valid ranges to avoid errors
-        new_width = max(new_width, 1)  # Minimum width of 1 pixel
-        new_height = max(new_height, 1)  # Minimum height of 1 pixel
+    # Ensure new dimensions are within valid ranges to avoid errors
+    new_width = max(new_width, 1)  # Minimum width of 1 pixel
+    new_height = max(new_height, 1)  # Minimum height of 1 pixel
 
-         # Calculate x and y coordinates for centered cropping
-        x = (width - new_width) // 2
-        y = (height - new_height) // 2
-        
-        (
-            ffmpeg.input(video_path,ss=0,t=input_duration)
-            .video
-              #Remove audio
-            .filter('crop',w=new_width, h=new_height, x=x, y=y) # Crop to the same aspect ratio
-            .filter('scale', 1080, 1920) # Resize to the same resolution
-            .filter('fps', fps=30) # Set fps to 30
-            .output('../temp/'+str(idx)+'.mpg',vcodec='libx264', format='mp4')
-            .run()
+    # Calculate x and y coordinates for centered cropping
+    x = (width - new_width) // 2
+    y = (height - new_height) // 2
+
+    (
+        ffmpeg.input(video_path, ss=0, t=input_duration)
+        .video
+        # Remove audio
+        .filter(
+            "crop", w=new_width, h=new_height, x=x, y=y
+        )  # Crop to the same aspect ratio
+        .filter("scale", 1080, 1920)  # Resize to the same resolution
+        .filter("fps", fps=30)  # Set fps to 30
+        .output(
+            "../temp/" + str(idx) + ".mpg",
+            vcodec="libx264",
+            preset="ultrafast",
+            format="mp4",
         )
-def resize_to_landscape(video_path,input_duration,idx):
-        probe = ffmpeg.probe(video_path)
-        video_stream = next(s for s in probe['streams'] if s['codec_type'] == 'video')
-        width = video_stream['width']
-        height = video_stream['height']
-        
-        # Calculate aspect ratio
-        aspect_ratio = width / height
-        
-        # Determine cropping and resizing parameters
-        if aspect_ratio > 1.7777:  # If the video is wider than 16:9
-            new_height = height
-            new_width = round(height * 1.7777)  # Adjust width to maintain 16:9 aspect ratio
-        else:  # If the video is narrower than 16:9
-            new_width = width
-            new_height = round(width / 1.7777)  # Adjust height to maintain 16:9 aspect ratio
-        
-        # Ensure new dimensions are within valid ranges to avoid errors
-        new_width = max(new_width, 1)  # Minimum width of 1 pixel
-        new_height = max(new_height, 1)  # Minimum height of 1 pixel
-        
-        # Calculate x and y coordinates for centered cropping
-        x = (width - new_width) // 2
-        y = (height - new_height) // 2
-        
-        (
-            ffmpeg
-            .input(video_path, ss=0, t=input_duration)
-            .video
-            # Remove audio
-            .filter('crop', w=new_width, h=new_height, x=x, y=y)  # Crop to the same aspect ratio
-            .filter('scale', 1920, 1080)  # Resize to 1920x1080 for YouTube
-            .filter('fps', fps=30)  # Set fps to 30
-            .output('../temp/'+str(idx)+'.mpg', vcodec='libx264', format='mp4')  # Output format changed to mp4
-            .run()
-        )
+        .run()
+    )
 
 
+def resize_to_landscape(video_path, input_duration, idx):
+    probe = ffmpeg.probe(video_path)
+    video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
+    width = video_stream["width"]
+    height = video_stream["height"]
 
-def combine_videos(video_paths: List[str], max_duration: int, max_clip_duration: int, vformat: str) -> str:
+    # Calculate aspect ratio
+    aspect_ratio = width / height
+
+    # Determine cropping and resizing parameters
+    if aspect_ratio > 1.7777:  # If the video is wider than 16:9
+        new_height = height
+        new_width = round(height * 1.7777)  # Adjust width to maintain 16:9 aspect ratio
+    else:  # If the video is narrower than 16:9
+        new_width = width
+        new_height = round(
+            width / 1.7777
+        )  # Adjust height to maintain 16:9 aspect ratio
+
+    # Ensure new dimensions are within valid ranges to avoid errors
+    new_width = max(new_width, 1)  # Minimum width of 1 pixel
+    new_height = max(new_height, 1)  # Minimum height of 1 pixel
+
+    # Calculate x and y coordinates for centered cropping
+    x = (width - new_width) // 2
+    y = (height - new_height) // 2
+
+    (
+        ffmpeg.input(video_path, ss=0, t=input_duration)
+        .video
+        # Remove audio
+        .filter(
+            "crop", w=new_width, h=new_height, x=x, y=y
+        )  # Crop to the same aspect ratio
+        .filter("scale", 1920, 1080)  # Resize to 1920x1080 for YouTube
+        .filter("fps", fps=30)  # Set fps to 30
+        .output(
+            "../temp/" + str(idx) + ".mpg",
+            vcodec="libx264",
+            preset="ultrafast",
+            format="mp4",
+        )  # Output format changed to mp4
+        .run()
+    )
+
+
+def combine_videos(
+    video_paths: List[str], max_duration: int, max_clip_duration: int, vformat: str
+) -> str:
     """
     Combines a list of videos into one video and returns the path to the combined video.
 
@@ -230,91 +251,91 @@ def combine_videos(video_paths: List[str], max_duration: int, max_clip_duration:
     Returns:
         str: The path to the combined video.
     """
-    
-    print(video_paths)
-    
 
-    video_id = 'videoaudio'
+    print(video_paths)
+
+    video_id = "videoaudio"
     combined_video_path = f"../temp/{video_id}.mp4"
-    
+
     # Required duration of each clip
     req_dur = max_duration / len(video_paths)
 
     print(colored("[+] Combining videos...", "blue"))
     print(colored(f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"))
 
-
-
     # Apply filters to each input stream
     # - Trim to the required duration or the remaining duration
     # - Crop and resize to the same aspect ratio and resolution
     # - Set fps to 30
-  
+
     tot_dur = 0
-    
+
     idx = 1
-    
-    while tot_dur<max_duration:
-      for video_path in video_paths:
-        if tot_dur>max_duration:
-            break
-        
-        print(colored("[+] Working on part "+str(idx),"blue"))
-        # Get the duration of the input stream
-        iprobe = ffmpeg.probe(video_path)
-        input_duration = float(iprobe['format']['duration'])
 
-        # Check if clip is longer than the remaining audio
-        if (max_duration - tot_dur) < input_duration:
-            input_duration = max_duration - tot_dur
+    while tot_dur < max_duration:
+        for video_path in video_paths:
+            if tot_dur > max_duration:
+                break
 
-        # Only shorten clips if the calculated clip length (req_dur) is shorter than the actual clip to prevent still image
-        if req_dur < input_duration:
-            input_duration = req_dur
+            print(colored("[+] Working on part " + str(idx), "blue"))
+            # Get the duration of the input stream
+            iprobe = ffmpeg.probe(video_path)
+            input_duration = float(iprobe["format"]["duration"])
 
-        if input_duration>max_clip_duration:
-          input_duration=max_clip_duration
-        if input_duration == 0:
-          break
+            # Check if clip is longer than the remaining audio
+            if (max_duration - tot_dur) < input_duration:
+                input_duration = max_duration - tot_dur
 
-        print('This clip duration after: '+str(input_duration))
-        
-          
-        # Apply filters to single clips
-        if vformat=="landscape":
-          resize_to_landscape(video_path, input_duration,idx)
-        elif vformat=="portrait":
-          resize_to_portrait(video_path,input_duration,idx)
-        else: 
-          print(colored("Something is wrong with video mode..", "red"))
-          break
-        # Increment duration until it meets the audio duration from TTS
-        tot_dur += input_duration
-        idx +=1
-        
-    
-        # Write the clips to the main video
-    print(colored("[+] Merging" +str(idx)+"videos..","blue"))
-    
-    
+            # Only shorten clips if the calculated clip length (req_dur) is shorter than the actual clip to prevent still image
+            if req_dur < input_duration:
+                input_duration = req_dur
+
+            if input_duration > max_clip_duration:
+                input_duration = max_clip_duration
+            if input_duration == 0:
+                break
+
+            print("This clip duration after: " + str(input_duration))
+
+            # Apply filters to single clips
+            if vformat == "landscape":
+                resize_to_landscape(video_path, input_duration, idx)
+            elif vformat == "portrait":
+                resize_to_portrait(video_path, input_duration, idx)
+            else:
+                print(colored("Something is wrong with video mode..", "red"))
+                break
+            # Increment duration until it meets the audio duration from TTS
+            tot_dur += input_duration
+            idx += 1
+
+            # Write the clips to the main video
+    print(colored("[+] Merging" + str(idx) + "videos..", "blue"))
+
     input_paths = []
-    for f in os.listdir('../temp'):
-      if f.endswith('.mpg'):
-        input_paths.append('../temp/'+f)
-    open('../temp/concat.txt', 'w').writelines([('file %s\n' % input_path) for input_path in input_paths])
-    ffmpeg.input('../temp/concat.txt', format='concat', safe=0).output('../temp/videoaudio.mp4', c='copy', an=None).run()
-    
-    
-    print(colored("[+] Successfully merged","green"))
+    for f in os.listdir("../temp"):
+        if f.endswith(".mpg"):
+            input_paths.append("../temp/" + f)
+    open("../temp/concat.txt", "w").writelines(
+        [("file %s\n" % input_path) for input_path in input_paths]
+    )
+    ffmpeg.input("../temp/concat.txt", format="concat", safe=0).output(
+        "../temp/videoaudio.mp4", c="copy", an=None
+    ).run()
+
+    print(colored("[+] Successfully merged", "green"))
 
     return combined_video_path
-    
-    
-          # Concatenate videos
+
+    # Concatenate videos
 
 
-
-def generate_video(combined_video_path: str, tts_path: str, subtitles_path: str, subtitles_position: str) -> str:
+def generate_video(
+    combined_video_path: str,
+    tts_path: str,
+    subtitles_path: str,
+    subtitles_position: str,
+) -> str:
     """
     This function creates the final video, with subtitles and audio.
 
@@ -328,27 +349,35 @@ def generate_video(combined_video_path: str, tts_path: str, subtitles_path: str,
     Returns:
         str: The path to the final video.
     """
-  
-
-
 
     # Create a stream object from the combined video
     video_stream = ffmpeg.input(combined_video_path)
 
     # Create a stream object from the text-to-speech audio
     duration = sox.file_info.duration(tts_path)
-    audio_stream = ffmpeg.input(tts_path,t=duration)
+    audio_stream = ffmpeg.input(tts_path, t=duration)
 
     # Add the subtitles to the video stream using the subtitles filter
     # You can adjust the font, size, color, etc. of the subtitles using the options argument
-    video_stream = video_stream.filter('subtitles', subtitles_path, **{'force_style': f'FontName=bold_font,FontSize=14,PrimaryColour=&H00FFFF,OutlineColour=&H000000,Outline=1,Alignment={subtitles_position}'})
+    video_stream = video_stream.filter(
+        "subtitles",
+        subtitles_path,
+        **{
+            "force_style": f"FontName=bold_font,FontSize=14,PrimaryColour=&H00FFFF,OutlineColour=&H000000,Outline=1,Alignment={subtitles_position}"
+        },
+    )
 
     # Merge the video and audio streams into one output stream
-    output_stream = ffmpeg.output(video_stream, audio_stream,'../Frontend/output.mp4',vcodec='libx264')
+    output_stream = ffmpeg.output(
+        video_stream,
+        audio_stream,
+        "../Frontend/output.mp4",
+        vcodec="libx264",
+        preset="ultrafast",
+    )
 
     # Run the ffmpeg command and generate the output file
     # You can specify the number of threads to use with the threads argument
     ffmpeg.run(output_stream, overwrite_output=True)
 
     return "../Frontend/output.mp4"
-    

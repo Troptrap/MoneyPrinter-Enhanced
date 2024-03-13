@@ -1,10 +1,7 @@
 import os
-import json
-import random
 import logging
-import zipfile
-import requests
-
+import sox
+from typing import List
 from termcolor import colored
 
 # Configure logging
@@ -36,57 +33,64 @@ def clean_dir(path: str) -> None:
     except Exception as e:
         logger.error(f"Error occurred while cleaning directory {path}: {str(e)}")
 
-def fetch_songs(zip_url: str) -> None:
-    """
-    Downloads songs into songs/ directory to use with geneated videos.
+def concat_audio(paths: List[str]) -> str:
+    cbn = sox.Combiner()
+    cbn.build(paths, os.path.abspath("../temp/ttsoutput.mp3"), "concatenate")
 
-    Args:
-        zip_url (str): The URL to the zip file containing the songs.
 
-    Returns:
-        None
-    """
-    try:
-        logger.info(colored(f" => Fetching songs...", "magenta"))
+def process_music(input_file):
+    # Create a transformer
+    tfm = sox.Transformer()
+    target_rate = sox.file_info.sample_rate(os.path.abspath("../temp/ttsoutput.mp3"))
+    # Set the volume to 20% of the original
+    tfm.rate(samplerate=target_rate)
+    tfm.norm(db_level=-8)
+    tfm.vol(0.15)
+    # Apply the transformation to the input file and create the output file
 
-        files_dir = "../Songs"
-        if not os.path.exists(files_dir):
-            os.mkdir(files_dir)
-            logger.info(colored(f"Created directory: {files_dir}", "green"))
-        else:
-            # Skip if songs are already downloaded
-            return
+    lowvol_file = os.path.abspath("../temp/lowvolmusic.mp3")
+    tfm.build(input_file, lowvol_file)
 
-        # Download songs
-        response = requests.get(zip_url)
+    # Print a success message
+    print(
+        f"The volume of {input_file} has been reduced to 15% and saved as {lowvol_file}."
+    )
+    duration_audio1 = sox.file_info.duration(os.path.abspath("../temp/ttsoutput.mp3"))
+    print("TTS duration: " + str(duration_audio1))
+    cmb = sox.Combiner()
 
-        # Save the zip file
-        with open("../Songs/songs.zip", "wb") as file:
-            file.write(response.content)
+    duration_audio2 = sox.file_info.duration(lowvol_file)
+    print("Music duration: " + str(duration_audio2))
+    if duration_audio2 < duration_audio1:
+        repeat_times = int(duration_audio1 // duration_audio2) + 1
+        print("Looping music..")
+        tfm.repeat(count=repeat_times)
+        tfm.build(lowvol_file, "audio2_repeated.mp3")
+        audio2_path = "audio2_repeated.mp3"
+    else:
+        audio2_path = "audio2.mp3"
 
-        # Unzip the file
-        with zipfile.ZipFile("../Songs/songs.zip", "r") as file:
-            file.extractall("../Songs")
+    if duration_audio2 > duration_audio1:
+        print("Trimming music..")
+        tfm.trim(0, duration_audio1)
+        tfm.build(lowvol_file, "audio2_trimmed.mp3")
+        audio2_path = "audio2_trimmed.mp3"
 
-        # Remove the zip file
-        os.remove("../Songs/songs.zip")
+    # Combine audio1.mp3 and the modified audio2.mp3
+    print("Trying to mix voice and music..")
+    cmb.build(
+        [os.path.abspath("../temp/ttsoutput.mp3"), audio2_path],
+        os.path.abspath("../temp/mixed_audio.mp3"),
+        "mix",
+    )
+    duration_mixed = sox.file_info.duration(os.path.abspath("../temp/mixed_audio.mp3"))
+    print("Mixed file duration: " + str(duration_mixed))
+    # Remove the temporary file if it was created
+    print("Succesfull mixing! Cleaning ..")
+    if "repeated" in audio2_path or "trimmed" in audio2_path:
+        os.remove(audio2_path)
 
-        logger.info(colored(" => Downloaded Songs to ../Songs.", "green"))
-
-    except Exception as e:
-        logger.error(colored(f"Error occurred while fetching songs: {str(e)}", "red"))
-
-def choose_random_song() -> str:
-    """
-    Chooses a random song from the songs/ directory.
-
-    Returns:
-        str: The path to the chosen song.
-    """
-    try:
-        songs = os.listdir("../Songs")
-        song = random.choice(songs)
-        logger.info(colored(f"Chose song: {song}", "green"))
-        return f"../Songs/{song}"
-    except Exception as e:
-        logger.error(colored(f"Error occurred while choosing random song: {str(e)}", "red"))
+    os.rename(
+        os.path.abspath("../temp/mixed_audio.mp3"),
+        os.path.abspath("../temp/ttsoutput.mp3"),
+    )
