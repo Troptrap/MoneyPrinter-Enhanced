@@ -55,9 +55,15 @@ def generate_pexels_video_pairs(data):
         small_url = video['video_files'][0]['link']
         yield big_url, small_url
 def generate_pixabay_video_pairs(data):
+<<<<<<< HEAD
     for video in data["hits"]:
         big_url = video['videos']['large']['url']
         small_url = video['videos']['small']['url']
+=======
+    for video in data["videos"]:
+        big_url = [video['videos']['large']['url'] for video in data['hits']]
+        small_url = [video['videos']['small']['url'] for video in data['hits']]
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
         yield big_url, small_url
         
 @app.route('/g4f-models', methods=['GET'])
@@ -68,6 +74,77 @@ def g4f_models_list():
    
 @app.route('/pexels/photo/search/<term>', methods=['GET'])  
 def search_pexels_photos(term):
+<<<<<<< HEAD
+=======
+  
+  url ='https://api.pexels.com/v1/search?query='+term
+  headers= {
+    'Authorization' : PEXELS_API_KEY
+  }
+  response = requests.get(url, headers=headers)
+  data = response.json()
+  urls = (photo["src"]["original"] for photo in data["photos"])
+  return jsonify(list(urls))
+  
+@app.route('/pexels/video/search/', methods=['GET'])  
+def pexels_search_random():
+  url = 'https://api.pexels.com/videos/popular'
+  headers= {
+    'Authorization' : PEXELS_API_KEY
+  }
+  response = requests.get(url, headers=headers)
+  data = response.json()
+  urls = dict(generate_pexels_video_pairs(data))
+  return urls
+@app.route('/pexels/video/search/<term>', methods=['GET'])  
+def search_pexels_videos(term):
+  url ='https://api.pexels.com/videos/search?query='+term
+  headers= {
+    'Authorization' : PEXELS_API_KEY
+  }
+  response = requests.get(url, headers=headers)
+  data = response.json()
+  urls = dict(generate_pexels_video_pairs(data))
+  return urls
+  
+@app.route('/pixabay/photo/search/<term>', methods=['GET'])  
+def search_pixabay_photos(term):
+  url = f'https://pixabay.com/api/?key={PIXABAY_API_KEY}&q={term}'
+  response = requests.get(url)
+  data = response.json()
+  urls = (photo['largeImageURL'] for photo in data['hits'])
+  return jsonify(list(urls))
+  
+@app.route('/pixabay/video/search/<term>', methods=['GET'])
+def search_pixabay_videos(term):
+  url = f'https://pixabay.com/api/videos/?key={PIXABAY_API_KEY}&q={term}'
+  response = requests.get(url)
+  data = response.json()
+  return jsonify(generate_pixabay_video_pairs(data))
+  
+@app.route('/unsplash/photo/search/<term>', methods=['GET'])  
+def search_unsplash_photos(term):
+  url = f"https://api.unsplash.com/search/photos?page=1&per_page=15&query={term}&client_id={UNSPLASH_API_KEY}"
+  response = requests.get(url)
+  data = response.json()
+  urls = (photo['urls']['full'] for photo in data['results'])
+  return jsonify(list(urls))
+  
+@app.route('/flickr/photo/search/<term>', methods=['GET'])  
+def search_flickr_photos(term):
+  term = term.replace(" ", ",")
+  url = f"https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key={FLICKR_API_KEY}&tags={term}&tag_mode=all&license=4,5,6,7&per_page=15&format=json&nojsoncallback=1"
+  response = requests.get(url)
+  data = response.json()
+  urls = (f"https://live.staticflickr.com/{photo['server']}/{photo['id']}_{photo['secret']}_b.jpg" for photo in data['photos']['photo'])
+  return jsonify(urls)
+   
+   
+@app.route('/songs/download/<songid>', methods=['GET'])
+def grabSong(songid):
+  base_path = "../music"
+  songfile = songid+'.mp3'
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
   
   url ='https://api.pexels.com/v1/search?query='+term
   headers= {
@@ -335,11 +412,17 @@ def serve_page(path):
 @app.route('/music/<path>')
 def serve_music(path):
     return send_from_directory('../music', path)
+<<<<<<< HEAD
     
 @app.route('/media/<path>')
 def serve_media(path):
     return send_from_directory('../media', path)
     
+=======
+@app.route('/media/<path>')
+def serve_media(path):
+    return send_from_directory('../media', path)
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 @app.route('/grabmedia', methods=['POST'])
 def grabmedia():
   data = request.get_json()

@@ -7,7 +7,12 @@ from termcolor import colored
 def search_for_stock_videos(
     query: str, api_key: str, it: int, min_dur: int
 ) -> List[str]:
+<<<<<<< HEAD
     """Searches for stock videos based on a query.
+=======
+    """
+    Searches for stock videos based on a query.
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     Args:
         query (str): The query to search for.
@@ -16,6 +21,10 @@ def search_for_stock_videos(
     Returns:
         List[str]: A list of stock videos.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     # Build headers
     headers = {"Authorization": api_key}
 

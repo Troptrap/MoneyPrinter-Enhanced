@@ -73,9 +73,13 @@ def get_authenticated_service():
         any: The authenticated YouTube service.
     """
     flow = flow_from_clientsecrets(
+<<<<<<< HEAD
         CLIENT_SECRETS_FILE,
         scope=SCOPES,
         message=MISSING_CLIENT_SECRETS_MESSAGE,
+=======
+        CLIENT_SECRETS_FILE, scope=SCOPES, message=MISSING_CLIENT_SECRETS_MESSAGE
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     )
 
     storage = Storage(f"{sys.argv[0]}-oauth2.json")
@@ -124,16 +128,25 @@ def initialize_upload(youtube: any, options: dict):
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
+<<<<<<< HEAD
         media_body=MediaFileUpload(
             options["file"], chunksize=-1, resumable=True
         ),
+=======
+        media_body=MediaFileUpload(options["file"], chunksize=-1, resumable=True),
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     )
 
     return resumable_upload(insert_request)
 
 
 def resumable_upload(insert_request: MediaFileUpload):
+<<<<<<< HEAD
     """This method implements an exponential backoff strategy to resume a
+=======
+    """
+    This method implements an exponential backoff strategy to resume a
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     failed upload.
 
     Args:
@@ -150,9 +163,13 @@ def resumable_upload(insert_request: MediaFileUpload):
             print(colored(" => Uploading file...", "magenta"))
             status, response = insert_request.next_chunk()
             if "id" in response:
+<<<<<<< HEAD
                 print(
                     f"Video id '{response['id']}' was successfully uploaded."
                 )
+=======
+                print(f"Video id '{response['id']}' was successfully uploaded.")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
                 return response
         except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
@@ -172,24 +189,36 @@ def resumable_upload(insert_request: MediaFileUpload):
             sleep_seconds = random.random() * max_sleep
             print(
                 colored(
+<<<<<<< HEAD
                     f" => Sleeping {sleep_seconds} seconds and then retrying...",
                     "blue",
+=======
+                    f" => Sleeping {sleep_seconds} seconds and then retrying...", "blue"
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
                 )
             )
             time.sleep(sleep_seconds)
 
 
+<<<<<<< HEAD
 def upload_video(
     video_path, title, description, category, keywords, privacy_status
 ):
+=======
+def upload_video(video_path, title, description, category, keywords, privacy_status):
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     try:
         # Get the authenticated YouTube service
         youtube = get_authenticated_service()
 
         # Retrieve and print the channel ID for the authenticated user
+<<<<<<< HEAD
         channels_response = (
             youtube.channels().list(mine=True, part="id").execute()
         )
+=======
+        channels_response = youtube.channels().list(mine=True, part="id").execute()
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
         for channel in channels_response["items"]:
             print(colored(f" => Channel ID: {channel['id']}", "blue"))
 
@@ -208,10 +237,14 @@ def upload_video(
         return video_response  # Return the response from the upload process
     except HttpError as e:
         print(
+<<<<<<< HEAD
             colored(
                 f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}",
                 "red",
             )
+=======
+            colored(f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}", "red")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
         )
         if e.resp.status in [401, 403]:
             # Here you could refresh the credentials and retry the upload

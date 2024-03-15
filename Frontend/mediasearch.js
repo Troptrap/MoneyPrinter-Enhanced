@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const pixabay = document.getElementById("Pixabay-Photo");
 	const unsplash = document.getElementById("Unsplash-Photo");
 	const flickr = document.getElementById("Flickr-Photo");
+<<<<<<< HEAD
 
 	const fullImageDialog = document.getElementById("full-image-dialog");
 	const closeDialog = document.getElementById("close-dialog");
@@ -20,6 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
 	function removeUnusedRemote() {
 		const remoteCards = document.querySelectorAll(".remote");
 		remoteCards.forEach((el) => el.remove());
+=======
+	function removeUnusedRemote(){
+	  const remoteCards = document.querySelectorAll(".remote");
+	  remoteCards.forEach(el => el.remove())
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 	}
 	function grabMedia() {
 		const elem = this;
@@ -63,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 	}
 
+<<<<<<< HEAD
 	function pixabayvid() {
 		const term = document.getElementById("find").value;
 		const mediaResults = document.getElementById("media-results");
@@ -128,6 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
 				}
 			});
 	}
+=======
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 	function pexelsvid() {
 		const term = document.getElementById("find").value;
 		const mediaResults = document.getElementById("media-results");
@@ -193,6 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				}
 			});
 	}
+<<<<<<< HEAD
 
 	function getPhotos(photoSource) {
 		const term = document.getElementById("find").value;
@@ -283,6 +293,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	flickr.addEventListener("click", () => {
 		getPhotos("flickr");
 	});
+=======
+	pexelsvideo.addEventListener("click", removeUnusedRemote);
+	pexelsvideo.addEventListener("click", pexelsvid);
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
 	closewindow.addEventListener("click", () => {
 		window.close();

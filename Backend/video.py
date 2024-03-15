@@ -18,7 +18,12 @@ ASSEMBLY_AI_API_KEY = os.getenv("ASSEMBLY_AI_API_KEY")
 
 
 def save_video(video_url: str, count: int, directory: str = "../temp"):
+<<<<<<< HEAD
     """Saves a video from a given URL and returns the path to the video.
+=======
+    """
+    Saves a video from a given URL and returns the path to the video.
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     Args:
         video_url (str): The URL of the video to save.
@@ -81,9 +86,13 @@ def __generate_subtitles_locally(
         # Convert total seconds to the SRT time format: HH:MM:SS,mmm
         if total_seconds == 0:
             return "0:00:00,0"
+<<<<<<< HEAD
         return (
             str(timedelta(seconds=total_seconds)).rstrip("0").replace(".", ",")
         )
+=======
+        return str(timedelta(seconds=total_seconds)).rstrip("0").replace(".", ",")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     start_time = 0
     subtitles = []
@@ -108,7 +117,12 @@ def __generate_subtitles_locally(
 def generate_subtitles(
     audio_path: str, sentences: List[str], audio_clips: List[str], voice: str
 ) -> str:
+<<<<<<< HEAD
     """Generates subtitles from a given audio file and returns the path to the subtitles.
+=======
+    """
+    Generates subtitles from a given audio file and returns the path to the subtitles.
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     Args:
         audio_path (str): The path to the audio file to generate subtitles from.
@@ -149,9 +163,13 @@ def generate_subtitles(
 
 def resize_to_portrait(video_path, input_duration, idx):
     probe = ffmpeg.probe(video_path)
+<<<<<<< HEAD
     video_stream = next(
         s for s in probe["streams"] if s["codec_type"] == "video"
     )
+=======
+    video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     width = video_stream["width"]
     height = video_stream["height"]
 
@@ -161,6 +179,7 @@ def resize_to_portrait(video_path, input_duration, idx):
     # Determine cropping and resizing parameters
     if aspect_ratio < 0.5625:  # Landscape video (wider than tall)
         new_width = width
+<<<<<<< HEAD
         new_height = round(
             width / 0.5625
         )  # Maintain aspect ratio for landscape
@@ -169,6 +188,12 @@ def resize_to_portrait(video_path, input_duration, idx):
         new_width = round(
             0.5625 * height
         )  # Maintain aspect ratio for portrait
+=======
+        new_height = round(width / 0.5625)  # Maintain aspect ratio for landscape
+    else:  # Portrait video (taller than wide)
+        new_height = height
+        new_width = round(0.5625 * height)  # Maintain aspect ratio for portrait
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     # Ensure new dimensions are within valid ranges to avoid errors
     new_width = max(new_width, 1)  # Minimum width of 1 pixel
@@ -199,9 +224,13 @@ def resize_to_portrait(video_path, input_duration, idx):
 
 def resize_to_landscape(video_path, input_duration, idx):
     probe = ffmpeg.probe(video_path)
+<<<<<<< HEAD
     video_stream = next(
         s for s in probe["streams"] if s["codec_type"] == "video"
     )
+=======
+    video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     width = video_stream["width"]
     height = video_stream["height"]
 
@@ -211,9 +240,13 @@ def resize_to_landscape(video_path, input_duration, idx):
     # Determine cropping and resizing parameters
     if aspect_ratio > 1.7777:  # If the video is wider than 16:9
         new_height = height
+<<<<<<< HEAD
         new_width = round(
             height * 1.7777
         )  # Adjust width to maintain 16:9 aspect ratio
+=======
+        new_width = round(height * 1.7777)  # Adjust width to maintain 16:9 aspect ratio
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     else:  # If the video is narrower than 16:9
         new_width = width
         new_height = round(
@@ -248,12 +281,19 @@ def resize_to_landscape(video_path, input_duration, idx):
 
 
 def combine_videos(
+<<<<<<< HEAD
     video_paths: List[str],
     max_duration: int,
     max_clip_duration: int,
     vformat: str,
 ) -> str:
     """Combines a list of videos into one video and returns the path to the combined video.
+=======
+    video_paths: List[str], max_duration: int, max_clip_duration: int, vformat: str
+) -> str:
+    """
+    Combines a list of videos into one video and returns the path to the combined video.
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     Args:
         video_paths (List): A list of paths to the videos to combine.
@@ -264,8 +304,14 @@ def combine_videos(
     Returns:
         str: The path to the combined video.
     """
+<<<<<<< HEAD
     print(video_paths)
 
+=======
+
+    print(video_paths)
+
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     video_id = "videoaudio"
     combined_video_path = f"../temp/{video_id}.mp4"
 
@@ -273,11 +319,15 @@ def combine_videos(
     req_dur = max_duration / len(video_paths)
 
     print(colored("[+] Combining videos...", "blue"))
+<<<<<<< HEAD
     print(
         colored(
             f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"
         )
     )
+=======
+    print(colored(f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"))
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     # Apply filters to each input stream
     # - Trim to the required duration or the remaining duration
@@ -352,7 +402,12 @@ def generate_video(
     subtitles_path: str,
     subtitles_position: str,
 ) -> str:
+<<<<<<< HEAD
     """This function creates the final video, with subtitles and audio.
+=======
+    """
+    This function creates the final video, with subtitles and audio.
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     Args:
         combined_video_path (str): The path to the combined video.
@@ -364,6 +419,10 @@ def generate_video(
     Returns:
         str: The path to the final video.
     """
+<<<<<<< HEAD
+=======
+
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     # Create a stream object from the combined video
     video_stream = ffmpeg.input(combined_video_path)
 

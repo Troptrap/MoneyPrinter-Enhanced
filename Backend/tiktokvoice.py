@@ -12,6 +12,10 @@ import threading
 
 from typing import List
 from termcolor import colored
+<<<<<<< HEAD
+=======
+
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
 
 VOICES = [
@@ -119,7 +123,13 @@ def generate_audio(text: str, voice: str) -> bytes:
 
 # creates an text to speech audio file
 def tiktok_tts(
+<<<<<<< HEAD
     text: str, voice: str = "none", filename: str = "output.mp3"
+=======
+    text: str,
+    voice: str = "none",
+    filename: str = "output.mp3"
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 ) -> None:
     # checking if the website is available
     global current_endpoint
@@ -207,6 +217,7 @@ def tiktok_tts(
             audio_base64_data = "".join(audio_base64_data)
 
         save_audio_file(audio_base64_data, filename)
+<<<<<<< HEAD
         print(
             colored(
                 f"[+] Audio file saved successfully as '{filename}'", "green"
@@ -215,3 +226,12 @@ def tiktok_tts(
 
     except Exception as e:
         print(colored(f"[-] An error occurred during TTS: {e}", "red"))
+=======
+        print(colored(f"[+] Audio file saved successfully as '{filename}'", "green"))
+      
+
+    except Exception as e:
+        print(colored(f"[-] An error occurred during TTS: {e}", "red"))
+
+
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
