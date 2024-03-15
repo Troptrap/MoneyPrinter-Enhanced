@@ -20,7 +20,11 @@ httplib2.RETRIES = 1
 MAX_RETRIES = 10
 
 # Always retry when these exceptions are raised.
-RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib2.ServerNotFoundError)
+RETRIABLE_EXCEPTIONS = (
+    httplib2.HttpLib2Error,
+    IOError,
+    httplib2.ServerNotFoundError,
+)
 
 # Always retry when an apiclient.errors.HttpError with one of these status
 # codes is raised.
@@ -34,11 +38,13 @@ CLIENT_SECRETS_FILE = "./client_secret.json"
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
 # YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
-SCOPES = ['https://www.googleapis.com/auth/youtube.upload',
-          'https://www.googleapis.com/auth/youtube',
-          'https://www.googleapis.com/auth/youtubepartner']
-YOUTUBE_API_SERVICE_NAME = "youtube"  
-YOUTUBE_API_VERSION = "v3"  
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube",
+    "https://www.googleapis.com/auth/youtubepartner",
+]
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
 
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
@@ -57,19 +63,24 @@ For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """
 
-VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")  
-  
-  
+VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
+
+
 def get_authenticated_service():
-    """
-    This method retrieves the YouTube service.
+    """This method retrieves the YouTube service.
 
     Returns:
         any: The authenticated YouTube service.
     """
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-                                   scope=SCOPES,
-                                   message=MISSING_CLIENT_SECRETS_MESSAGE)
+    flow = flow_from_clientsecrets(
+<<<<<<< HEAD
+        CLIENT_SECRETS_FILE,
+        scope=SCOPES,
+        message=MISSING_CLIENT_SECRETS_MESSAGE,
+=======
+        CLIENT_SECRETS_FILE, scope=SCOPES, message=MISSING_CLIENT_SECRETS_MESSAGE
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+    )
 
     storage = Storage(f"{sys.argv[0]}-oauth2.json")
     credentials = storage.get()
@@ -78,12 +89,15 @@ def get_authenticated_service():
         flags = argparser.parse_args()
         credentials = run_flow(flow, storage, flags)
 
-    return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                 http=credentials.authorize(httplib2.Http()))
+    return build(
+        YOUTUBE_API_SERVICE_NAME,
+        YOUTUBE_API_VERSION,
+        http=credentials.authorize(httplib2.Http()),
+    )
+
 
 def initialize_upload(youtube: any, options: dict):
-    """
-    This method uploads a video to YouTube.
+    """This method uploads a video to YouTube.
 
     Args:
         youtube (any): The authenticated YouTube service.
@@ -92,37 +106,47 @@ def initialize_upload(youtube: any, options: dict):
     Returns:
         response: The response from the upload process.
     """
-
     tags = None
-    if options['keywords']:
-        tags = options['keywords'].split(",")
+    if options["keywords"]:
+        tags = options["keywords"].split(",")
 
     body = {
-        'snippet': {
-            'title': options['title'],
-            'description': options['description'],
-            'tags': tags,
-            'categoryId': options['category']
+        "snippet": {
+            "title": options["title"],
+            "description": options["description"],
+            "tags": tags,
+            "categoryId": options["category"],
         },
-        'status': {
-            'privacyStatus': options['privacyStatus'],
-            'madeForKids': False,  # Video is not made for kids
-            'selfDeclaredMadeForKids': False  # You declare that the video is not made for kids
-        }
+        "status": {
+            "privacyStatus": options["privacyStatus"],
+            "madeForKids": False,  # Video is not made for kids
+            "selfDeclaredMadeForKids": False,  # You declare that the video is not made for kids
+        },
     }
 
     # Call the API's videos.insert method to create and upload the video.
     insert_request = youtube.videos().insert(
         part=",".join(body.keys()),
         body=body,
-        media_body=MediaFileUpload(options['file'], chunksize=-1, resumable=True)
+<<<<<<< HEAD
+        media_body=MediaFileUpload(
+            options["file"], chunksize=-1, resumable=True
+        ),
+=======
+        media_body=MediaFileUpload(options["file"], chunksize=-1, resumable=True),
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     )
 
     return resumable_upload(insert_request)
 
+
 def resumable_upload(insert_request: MediaFileUpload):
+<<<<<<< HEAD
+    """This method implements an exponential backoff strategy to resume a
+=======
     """
-    This method implements an exponential backoff strategy to resume a  
+    This method implements an exponential backoff strategy to resume a
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     failed upload.
 
     Args:
@@ -138,8 +162,14 @@ def resumable_upload(insert_request: MediaFileUpload):
         try:
             print(colored(" => Uploading file...", "magenta"))
             status, response = insert_request.next_chunk()
-            if 'id' in response:
+            if "id" in response:
+<<<<<<< HEAD
+                print(
+                    f"Video id '{response['id']}' was successfully uploaded."
+                )
+=======
                 print(f"Video id '{response['id']}' was successfully uploaded.")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
                 return response
         except HttpError as e:
             if e.resp.status in RETRIABLE_STATUS_CODES:
@@ -155,44 +185,83 @@ def resumable_upload(insert_request: MediaFileUpload):
             if retry > MAX_RETRIES:
                 raise Exception("No longer attempting to retry.")
 
-            max_sleep = 2 ** retry 
+            max_sleep = 2**retry
             sleep_seconds = random.random() * max_sleep
-            print(colored(f" => Sleeping {sleep_seconds} seconds and then retrying...", "blue"))
-            time.sleep(sleep_seconds)  
-  
+            print(
+                colored(
+<<<<<<< HEAD
+                    f" => Sleeping {sleep_seconds} seconds and then retrying...",
+                    "blue",
+=======
+                    f" => Sleeping {sleep_seconds} seconds and then retrying...", "blue"
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+                )
+            )
+            time.sleep(sleep_seconds)
+
+
+<<<<<<< HEAD
+def upload_video(
+    video_path, title, description, category, keywords, privacy_status
+):
+=======
 def upload_video(video_path, title, description, category, keywords, privacy_status):
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     try:
         # Get the authenticated YouTube service
         youtube = get_authenticated_service()
 
         # Retrieve and print the channel ID for the authenticated user
-        channels_response = youtube.channels().list(mine=True, part='id').execute()
-        for channel in channels_response['items']:
+<<<<<<< HEAD
+        channels_response = (
+            youtube.channels().list(mine=True, part="id").execute()
+        )
+=======
+        channels_response = youtube.channels().list(mine=True, part="id").execute()
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+        for channel in channels_response["items"]:
             print(colored(f" => Channel ID: {channel['id']}", "blue"))
 
         # Initialize the upload process
-        video_response = initialize_upload(youtube, {
-            'file': video_path, # The path to the video file
-            'title': title,
-            'description': description,
-            'category': category, 
-            'keywords': keywords,
-            'privacyStatus': privacy_status
-        })
-        return video_response # Return the response from the upload process
+        video_response = initialize_upload(
+            youtube,
+            {
+                "file": video_path,  # The path to the video file
+                "title": title,
+                "description": description,
+                "category": category,
+                "keywords": keywords,
+                "privacyStatus": privacy_status,
+            },
+        )
+        return video_response  # Return the response from the upload process
     except HttpError as e:
-        print(colored(f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}", "red"))
+        print(
+<<<<<<< HEAD
+            colored(
+                f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}",
+                "red",
+            )
+=======
+            colored(f"[-] An HTTP error {e.resp.status} occurred:\n{e.content}", "red")
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+        )
         if e.resp.status in [401, 403]:
-            # Here you could refresh the credentials and retry the upload  
-            youtube = get_authenticated_service() # This will prompt for re-authentication if necessary
-            video_response = initialize_upload(youtube, {
-                'file': video_path,
-                'title': title,
-                'description': description,
-                'category': category,
-                'keywords': keywords,
-                'privacyStatus': privacy_status
-            })
+            # Here you could refresh the credentials and retry the upload
+            youtube = (
+                get_authenticated_service()
+            )  # This will prompt for re-authentication if necessary
+            video_response = initialize_upload(
+                youtube,
+                {
+                    "file": video_path,
+                    "title": title,
+                    "description": description,
+                    "category": category,
+                    "keywords": keywords,
+                    "privacyStatus": privacy_status,
+                },
+            )
             return video_response
         else:
-            raise e 
+            raise e

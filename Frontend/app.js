@@ -31,7 +31,7 @@ function listFreeModels() {
 					let option = document.createElement("option");
 					option.text = item;
 					option.value = item;
-					if (option.value == "gpt-3.5-turbo-0613") {
+					if (option.value == "mixtral-8x7b") {
 						option.setAttribute("selected", "selected");
 					}
 					g4fmodel.appendChild(option);

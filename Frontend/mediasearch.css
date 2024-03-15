@@ -1,0 +1,44 @@
+html {
+	font-size: 1.5em;
+}
+
+#closewindow {
+	z-index: 999;
+}
+.card {
+	position: relative;
+	border-style: solid;
+	width: 640px;
+	height: 360px;
+	text-align: center;
+	margin-bottom: 3em;
+	margin-top: 2em;
+}
+h1 {
+	font-size: 2.5em;
+}
+
+.sources {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 95%;
+	margin: 0 auto;
+}
+#media-results {
+}
+video {
+	object-fit: cover;
+	max-height: 90%;
+	width: 100%;
+}
+<<<<<<< HEAD
+img {
+	object-fit: cover;
+	max-height: 90%;
+	width: 100%;
+}
+=======
+>>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
