@@ -1,4 +1,4 @@
-assemblyai==0.21.0
+assemblyai==0.23.0
 edge_tts==6.1.10
 ffmpeg_python==0.2.0
 Flask==3.0.2
