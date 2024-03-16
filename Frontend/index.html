@@ -39,7 +39,14 @@
 					name="videoSubject"
 					id="videoSubject"
 					class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"></textarea>
-
+<div id="stdout" class="max-w-xl flex flex-col space-y-4 w-full">
+  
+				<div
+					name="message"
+					id="message"
+					class="max-h-12 bg-gray-400 text-white border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"></div>
+</div>
+					
 				<p class="text-center text-gray-700">Choose video format</p>
 				<form id="videoform" action="">
 					<div class="radio-inputs">
@@ -174,9 +181,10 @@
 						<option value="gpt4">OpenAI GPT-4</option>
 						<option value="gemmini">Gemini Pro</option>
 					</select>
-          <select name="g4fm"  id="g4fm" class="w-full border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden" >
-            
-          </select>
+					<select
+						name="g4fm"
+						id="g4fm"
+						class="w-full border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden"></select>
 					<label for="subtitlesPosition" class="text-blue-600"
 						>Subtitles Position</label
 					>

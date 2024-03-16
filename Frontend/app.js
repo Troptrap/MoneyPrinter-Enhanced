@@ -21,6 +21,45 @@ const PlayerSelector = document.getElementById("songplayer");
 let currentTTS = "microsoft";
 let videoformat = "portrait";
 
+var lastMessage = "";
+var script = "";
+function insertScriptText(elem, data) {
+	textareaElem = document.createElement("textarea");
+	textareaElem.classList.add(
+		"border-2",
+		"border-blue-300",
+		"p-2",
+		"rounded-md",
+		"focus:outline-none",
+		"focus:border-blue-500"
+	);
+	textareaElem.rows = 4;
+	textareaElem.value = data;
+	elem.appendChild(textareaElem);
+}
+
+function checkForMessages() {
+	fetch("/check_messages")
+		.then((response) => response.json())
+		.then((data) => {
+			if (data !== lastMessage) {
+				const msgDiv = document.getElementById("message");
+				const stdOut = document.getElementById("stdout");
+				if (!data.startsWith("Script text")){
+				msgDiv.innerHTML += data + "<br/>";
+				}
+				if (data.startsWith("Script text:")) {
+					data = data.replace("Script text: ", "");
+					if (data !== script) {
+						script = data;
+						insertScriptText(stdout, script);
+					}
+				}
+				lastMessage = data;
+			}
+		});
+}
+
 function listFreeModels() {
 	if (aiModel.value === "g4f") {
 		g4fmodel.classList.remove("hidden");
@@ -99,6 +138,8 @@ const cancelGeneration = () => {
 };
 
 const generateVideo = () => {
+	// Check for messages every second
+	const msgInterval = setInterval(checkForMessages, 1000);
 	console.log("Generating video...");
 	// Disable button and change text
 	generateButton.disabled = true;
@@ -164,6 +205,7 @@ const generateVideo = () => {
 			cancelButton.classList.add("hidden");
 			outvid.classList.remove("hidden");
 			outvid.src = data.data;
+			clearInterval(msgInterval);
 		})
 		.catch((error) => {
 			alert("An error occurred. Please try again later.");
@@ -230,28 +272,6 @@ function grabAll(url) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-	/* const mslang = document.getElementById("mslang");
-
-	mslang.addEventListener("input", () => {
-		microsoftvoice.options.length = 0;
-		msft_voice(mslang.value, microsoftvoice);
-	});
-	langlist.addEventListener("change", () => {
-		mslang.value = langlist.value;
-		mslang.dispatchEvent(new Event("input"));
-	});
-
-	fetch("microsoft_voices.json").then((response) => {
-		response.json().then((data) => {
-			let locales = Object.keys(data);
-			for (let locale of locales) {
-				let option = document.createElement("option");
-				option.value = locale;
-				option.text = locale;
-				langlist.appendChild(option);
-			}
-		});
-	*/
 	msft_voice("en");
 	mslang.addEventListener("input", () => {
 		msft_voice(mslang.value);
@@ -627,5 +647,4 @@ Your browser does not support the audio element.
 		);
 	}
 	grabRandomSong();
-	// inside DOMContentLoaded
 });
