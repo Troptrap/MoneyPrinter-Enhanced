@@ -33,7 +33,7 @@ function insertScriptText(elem, data) {
 		"focus:outline-none",
 		"focus:border-blue-500"
 	);
-	textareaElem.rows = 4;
+	textareaElem.rows = 8;
 	textareaElem.value = data;
 	elem.appendChild(textareaElem);
 }
