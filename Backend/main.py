@@ -1,5 +1,4 @@
 import os
-import subprocess
 import requests
 import json
 import g4f
@@ -15,15 +14,27 @@ from termcolor import colored
 from dotenv import load_dotenv
 from youtube import upload_video
 from apiclient.errors import HttpError
-from flask import Flask, request, jsonify,send_from_directory
+from flask import Flask, request, jsonify,Response,send_from_directory
 import sox
 import asyncio
 from nltk.tokenize import sent_tokenize
+from werkzeug import serving
+import time
+def disable_endpoint_logs():
+    """Disable logs for requests to specific endpoints."""
 
+    disabled_endpoints = ('/check_messages','/songs/artists/')
 
+    parent_log_request = serving.WSGIRequestHandler.log_request
+
+    def log_request(self, *args, **kwargs):
+        if not any(re.match(f"{de}$", self.path) for de in disabled_endpoints):
+            parent_log_request(self, *args, **kwargs)
+
+    serving.WSGIRequestHandler.log_request = log_request
 # Load environment variables
 load_dotenv("../.env")
-
+disable_endpoint_logs()
 # Set environment variables
 SESSION_ID = os.getenv("TIKTOK_SESSION_ID")
 openai_api_key = os.getenv('OPENAI_API_KEY')
@@ -43,10 +54,14 @@ PORT = 8080
 AMOUNT_OF_STOCK_VIDEOS = 5
 GENERATING = False
 
+# Create an in-memory message queue which will be used to update frontend
+message_queue = ["Waiting.."]
 
-
-    
-    
+def message_put(message):
+  message_queue.append(message)
+def message_get():
+  return message_queue[-1]
+  
 
    
 def generate_pexels_video_pairs(data):
@@ -55,96 +70,26 @@ def generate_pexels_video_pairs(data):
         small_url = video['video_files'][0]['link']
         yield big_url, small_url
 def generate_pixabay_video_pairs(data):
-<<<<<<< HEAD
     for video in data["hits"]:
         big_url = video['videos']['large']['url']
         small_url = video['videos']['small']['url']
-=======
-    for video in data["videos"]:
-        big_url = [video['videos']['large']['url'] for video in data['hits']]
-        small_url = [video['videos']['small']['url'] for video in data['hits']]
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
         yield big_url, small_url
         
 @app.route('/g4f-models', methods=['GET'])
 def g4f_models_list():
   g4fm = g4f.Model.__all__()
   return g4fm
-   
+@app.route('/check_messages')
+def check_messages():
+    # Check if there's a message in the queue (non-blocking)
+    message = message_get()
+    if message:
+        return jsonify(message)
+    else:
+        return jsonify("Waiting..") # No content  
    
 @app.route('/pexels/photo/search/<term>', methods=['GET'])  
 def search_pexels_photos(term):
-<<<<<<< HEAD
-=======
-  
-  url ='https://api.pexels.com/v1/search?query='+term
-  headers= {
-    'Authorization' : PEXELS_API_KEY
-  }
-  response = requests.get(url, headers=headers)
-  data = response.json()
-  urls = (photo["src"]["original"] for photo in data["photos"])
-  return jsonify(list(urls))
-  
-@app.route('/pexels/video/search/', methods=['GET'])  
-def pexels_search_random():
-  url = 'https://api.pexels.com/videos/popular'
-  headers= {
-    'Authorization' : PEXELS_API_KEY
-  }
-  response = requests.get(url, headers=headers)
-  data = response.json()
-  urls = dict(generate_pexels_video_pairs(data))
-  return urls
-@app.route('/pexels/video/search/<term>', methods=['GET'])  
-def search_pexels_videos(term):
-  url ='https://api.pexels.com/videos/search?query='+term
-  headers= {
-    'Authorization' : PEXELS_API_KEY
-  }
-  response = requests.get(url, headers=headers)
-  data = response.json()
-  urls = dict(generate_pexels_video_pairs(data))
-  return urls
-  
-@app.route('/pixabay/photo/search/<term>', methods=['GET'])  
-def search_pixabay_photos(term):
-  url = f'https://pixabay.com/api/?key={PIXABAY_API_KEY}&q={term}'
-  response = requests.get(url)
-  data = response.json()
-  urls = (photo['largeImageURL'] for photo in data['hits'])
-  return jsonify(list(urls))
-  
-@app.route('/pixabay/video/search/<term>', methods=['GET'])
-def search_pixabay_videos(term):
-  url = f'https://pixabay.com/api/videos/?key={PIXABAY_API_KEY}&q={term}'
-  response = requests.get(url)
-  data = response.json()
-  return jsonify(generate_pixabay_video_pairs(data))
-  
-@app.route('/unsplash/photo/search/<term>', methods=['GET'])  
-def search_unsplash_photos(term):
-  url = f"https://api.unsplash.com/search/photos?page=1&per_page=15&query={term}&client_id={UNSPLASH_API_KEY}"
-  response = requests.get(url)
-  data = response.json()
-  urls = (photo['urls']['full'] for photo in data['results'])
-  return jsonify(list(urls))
-  
-@app.route('/flickr/photo/search/<term>', methods=['GET'])  
-def search_flickr_photos(term):
-  term = term.replace(" ", ",")
-  url = f"https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key={FLICKR_API_KEY}&tags={term}&tag_mode=all&license=4,5,6,7&per_page=15&format=json&nojsoncallback=1"
-  response = requests.get(url)
-  data = response.json()
-  urls = (f"https://live.staticflickr.com/{photo['server']}/{photo['id']}_{photo['secret']}_b.jpg" for photo in data['photos']['photo'])
-  return jsonify(urls)
-   
-   
-@app.route('/songs/download/<songid>', methods=['GET'])
-def grabSong(songid):
-  base_path = "../music"
-  songfile = songid+'.mp3'
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
   
   url ='https://api.pexels.com/v1/search?query='+term
   headers= {
@@ -285,7 +230,7 @@ def grabSongs(songid):
 @app.route('/songs/artists', methods=['GET'])   
 def get_all_artists():
     #Filter for artists names
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = {song['artist'] for song in songs.values()}
     return jsonify(list(filtered_songs))
@@ -293,7 +238,7 @@ def get_all_artists():
 @app.route('/songs/titles', methods=['GET'])   
 def get_all_titles():
     #Filter for artists names
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = {song['title'] for song in songs.values()}
     return jsonify(list(filtered_songs))
@@ -301,7 +246,7 @@ def get_all_titles():
 @app.route('/songs/moods', methods=['GET'])   
 def get_all_moods():
     #Filter for artists names
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = {song['mood'] for song in songs.values() if song['mood'] is not None}
     return jsonify(list(filtered_songs))
@@ -309,7 +254,7 @@ def get_all_moods():
 @app.route('/songs/genres', methods=['GET'])   
 def get_all_genres():
     #Filter for artists names
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = {song['genre'] for song in songs.values()}
     return jsonify(list(filtered_songs))
@@ -317,7 +262,7 @@ def get_all_genres():
 
 @app.route('/songs/instruments', methods=['GET'])   
 def get_all_instruments():
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = {
         instrument.lower() for song in songs.values()
@@ -328,7 +273,7 @@ def get_all_instruments():
 @app.route('/songs', methods=['GET'])
 def get_all_tracks():
     # Get the parameters from the query string
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     artist = request.args.get("artist")
     title = request.args.get("title")
@@ -352,7 +297,7 @@ def get_all_tracks():
 @app.route('/songs/artist/<artist>')
 def get_songs_by_artist(artist):
     # Filter the songs by the artist name
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = (song for song in songs.values() if artist.lower() in song['artist'].lower())
     # Return the filtered songs as a JSON response
@@ -362,7 +307,7 @@ def get_songs_by_artist(artist):
 @app.route('/songs/title/<title>')
 def get_songs_by_title(title):
     # Filter the songs by the title
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = (song for song in songs.values() if title.lower() in song['title'].lower())
     # Return the filtered songs as a JSON response
@@ -373,7 +318,7 @@ def get_songs_by_title(title):
 @app.route('/songs/mood/<mood>')
 def get_songs_by_mood(mood):
     # Filter the songs by mood
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = (song for song in songs.values() if song['mood'] is not None and song['mood']== mood)
     # Return the filtered songs as a JSON response
@@ -383,7 +328,7 @@ def get_songs_by_mood(mood):
 @app.route('/songs/genre/<genre>')
 def get_songs_by_genre(genre):
     # Filter the songs by the genre
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = (song for song in songs.values() if genre.lower() in  song['genre'].lower())
     # Return the filtered songs as a JSON response
@@ -395,7 +340,7 @@ def get_songs_by_genre(genre):
 @app.route('/songs/instrument/<instrument>')
 def get_songs_by_instrument(instrument):
     # Filter the songs by the instrument name
-    with open('audiolibrary.json', 'r') as f:
+    with open('audiolibrary.json') as f:
       songs = json.load(f)
     filtered_songs = (song for song in songs.values()  for item in song['instruments'] if instrument.lower() in item.lower())
     
@@ -412,22 +357,16 @@ def serve_page(path):
 @app.route('/music/<path>')
 def serve_music(path):
     return send_from_directory('../music', path)
-<<<<<<< HEAD
     
 @app.route('/media/<path>')
 def serve_media(path):
     return send_from_directory('../media', path)
     
-=======
-@app.route('/media/<path>')
-def serve_media(path):
-    return send_from_directory('../media', path)
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 @app.route('/grabmedia', methods=['POST'])
 def grabmedia():
   data = request.get_json()
   url = data['url']
-  with open('../media/list.json','r') as f:
+  with open('../media/list.json') as f:
     files = json.loads(f.read())
     if url not in files.keys():
     
@@ -442,7 +381,7 @@ def grabmedia():
             fname = url.split("/")[-1]
           with open(f"../media/{fname}","wb") as f:
             f.write(r.content)
-          with open('../media/list.json','r') as f:
+          with open('../media/list.json') as f:
             files = json.loads(f.read())
           files[url] = fname
           print(files)
@@ -459,6 +398,8 @@ def grabmedia():
 @app.route('/')
 def home():
     asyncio.run(voices_list())
+    message_put("Loaded app")
+    
     return send_from_directory(app.static_folder, 'index.html')
 
 
@@ -473,7 +414,8 @@ def generate():
         # Clean
         clean_dir("../temp/")
         clean_dir("../subtitles/")
-
+        message_put("Cleaned temporary files!")
+        print(message_queue)
 
         # Parse JSON
         data = request.get_json()
@@ -516,11 +458,14 @@ def generate():
             voice_prefix = voice[:2]
         script = gpt.generate_script(data["videoSubject"], paragraph_number, ai_model, voice, data["customPrompt"], g4f_model)  # Pass the AI model to the script generation
         print(script)
+        message_put("Script generated")
+        time.sleep(2);
+        message_put(f"Script text: {script}")
         # Generate search terms
         search_terms = gpt.get_search_terms(
             data["videoSubject"], AMOUNT_OF_STOCK_VIDEOS, script, ai_model,g4f_model
         )
-
+        message_put("Search terms generated")
         # Split script into sentences
         sentences = sent_tokenize(script)
         print(sentences)
@@ -551,6 +496,7 @@ def generate():
           fcount += 1
 
           # Combine all TTS files using sox
+        message_put("Voiceover generated")
         concat_audio(paths)
 
         tts_path = os.path.abspath('../temp/ttsoutput.mp3')
@@ -560,11 +506,12 @@ def generate():
           print(colored(f"[-] Error generating subtitles: {e}", "red"))
           subtitles_path = None         
           
-        # Concatenate videos
+        message_put("Subtitles generated")
         if use_music:
           music_file=os.path.abspath(data['bgSong'])
           print("Processing music File: "+music_file)
           process_music(music_file)
+          message_put("Background music added")
         ttsoutput_duration = sox.file_info.duration(tts_path)
 
         video_urls = []
@@ -622,13 +569,14 @@ def generate():
 
         # Let user know
         print(colored("[+] Videos downloaded!", "green"))
-
+        message_put("Videos downloaded")
         # Let user know
         print(colored("[+] Script generated!\n", "green"))
 
 
         
         combine_videos(video_paths, ttsoutput_duration, 10,vformat)
+        message_put("Clips combined")
         # Put everything together
         try:
             final_video_path = generate_video('../temp/videoaudio.mp4', tts_path, subtitles_path, subtitles_position)
@@ -636,6 +584,7 @@ def generate():
             print(colored(f"[-] Error generating final video: {e}", "red"))
             final_video_path = None
 
+        message_put("Video generation complete")
         # Define metadata for the video, we will display this to the user, and use it for the YouTube upload
         title, description, keywords = gpt.generate_metadata(data["videoSubject"], script, ai_model, g4f_model)
 
@@ -683,6 +632,7 @@ def generate():
                         privacy_status=video_metadata['privacyStatus']
                     )
                     print(f"Uploaded video ID: {video_response.get('id')}")
+                    message_put(f"Uploaded video ID: {video_response.get('id')}")
                 except HttpError as e:
                     print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
 
@@ -723,4 +673,4 @@ def cancel():
 if __name__ == "__main__":
 
     # Run Flask App
-    app.run(debug=True, host=HOST, port=PORT)
+    app.run(debug=False, host=HOST, port=PORT)

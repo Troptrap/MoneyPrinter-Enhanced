@@ -96,6 +96,11 @@ td {
 	margin:auto;
 }
 
+#message{ display:flex;
+       flex-direction:column-reverse;
+       overflow-y:scroll;
+}
+
 .fountainG{
 	position:absolute;
 	top:0;

@@ -30,10 +30,6 @@ def generate_response(prompt: str, ai_model: str, g4f_model: str) -> str:
         str: The response from the AI model.
 
     """
-<<<<<<< HEAD
-=======
-
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     if ai_model == "g4f":
         print("SELECTED FREE MODEL: " + g4f_model)
 
@@ -44,13 +40,12 @@ def generate_response(prompt: str, ai_model: str, g4f_model: str) -> str:
 
     elif ai_model in ["gpt3.5-turbo", "gpt4"]:
         model_name = (
-<<<<<<< HEAD
+
             "gpt-3.5-turbo"
             if ai_model == "gpt3.5-turbo"
             else "gpt-4-1106-preview"
-=======
             "gpt-3.5-turbo" if ai_model == "gpt3.5-turbo" else "gpt-4-1106-preview"
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+
         )
 
         response = (
@@ -71,21 +66,8 @@ def generate_response(prompt: str, ai_model: str, g4f_model: str) -> str:
 
     return response
 
-<<<<<<< HEAD
-=======
 
-def generate_script(
-    video_subject: str,
-    paragraph_number: int,
-    ai_model: str,
-    voice: str,
-    customPrompt: str,
-    g4f_model: str,
-) -> str:
-    """
-    Generate a script for a video, depending on the subject of the video, the number of paragraphs, and the AI model.
 
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
 def generate_script(
     video_subject: str,
@@ -170,14 +152,8 @@ def generate_script(
 
         # Print to console the number of paragraphs used
         print(
-<<<<<<< HEAD
-            colored(
-                f"Number of paragraphs used: {len(selected_paragraphs)}",
-                "green",
-            )
-=======
+          
             colored(f"Number of paragraphs used: {len(selected_paragraphs)}", "green")
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
         )
         return final_script
     else:
@@ -188,12 +164,10 @@ def generate_script(
 def get_search_terms(
     video_subject: str, amount: int, script: str, ai_model: str, g4f_model: str
 ) -> List[str]:
-<<<<<<< HEAD
-    """Generate a JSON-Array of search terms for stock videos,
-=======
+
+    
     """
     Generate a JSON-Array of search terms for stock videos,
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     depending on the subject of a video.
 
     Args:
@@ -214,8 +188,8 @@ def get_search_terms(
     The search terms are to be returned as
     a JSON-Array of strings.
 
-    Each search term should consist of 1-3 words,
-    always add the main subject of the video.
+    Each search term should consist of 1 word,
+    always related to the main subject of the video.
     
     YOU MUST ONLY RETURN THE JSON-ARRAY OF STRINGS.
     YOU MUST NOT RETURN ANYTHING ELSE. 
@@ -274,12 +248,10 @@ def get_search_terms(
 def generate_metadata(
     video_subject: str, script: str, ai_model: str, g4f_model
 ) -> Tuple[str, str, List[str]]:
-<<<<<<< HEAD
-    """Generate metadata for a YouTube video, including the title, description, and keywords.
-=======
+
     """
     Generate metadata for a YouTube video, including the title, description, and keywords.
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+
 
     Args:
         video_subject (str): The subject of the video.
@@ -289,10 +261,7 @@ def generate_metadata(
     Returns:
         Tuple[str, str, List[str]]: The title, description, and keywords for the video.
     """
-<<<<<<< HEAD
-=======
 
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
     # Build prompt for title
     title_prompt = f"""  
     Generate a catchy and SEO-friendly title for a YouTube shorts video about {video_subject}.  
@@ -309,13 +278,12 @@ def generate_metadata(
     """
 
     # Generate description
-<<<<<<< HEAD
+
     description = generate_response(
         description_prompt, ai_model, g4f_model
     ).strip()
-=======
+
     description = generate_response(description_prompt, ai_model, g4f_model).strip()
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
 
     # Generate keywords
     keywords = get_search_terms(video_subject, 6, script, ai_model, g4f_model)
