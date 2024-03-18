@@ -252,10 +252,31 @@ def resize_to_landscape(video_path, input_duration, idx):
     )
 
 
+def loop_video(input_file, req_dur):
+  """
+  Loops an input video and creates an output of specified duration with the same filename.
+
+  Args:
+    input_file: Path to the input video file (e.g., "input.mp4").
+    req_dur: The requested duration of the output video in seconds (float).
+  """
+  
+  # Generate a unique temporary filename within the same directory
+  base, ext = os.path.splitext(input_file)
+  temp_filename = f"{base}_temp.{ext}"
+  
+  stream = ffmpeg.input(input_file)
+  output = ffmpeg.output(stream, temp_filename, loop=-1, t=req_dur, c="copy")
+  ffmpeg.run(output)
+  
+  # Overwrite the original file with the temporary file
+  os.replace(temp_filename, input_file)
+
+
+
 def combine_videos(
     video_paths: List[str],
     max_duration: int,
-    max_clip_duration: int,
     vformat: str,
 ) -> str:
     
@@ -274,7 +295,7 @@ def combine_videos(
 
     print(video_paths)
 
-    video_id = "videoaudio"
+    video_id = "videoseq"
     combined_video_path = f"../temp/{video_id}.mp4"
 
     # Required duration of each clip
@@ -288,10 +309,6 @@ def combine_videos(
     )
     print(colored(f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"))
 
-    # Apply filters to each input stream
-    # - Trim to the required duration or the remaining duration
-    # - Crop and resize to the same aspect ratio and resolution
-    # - Set fps to 30
 
     tot_dur = 0
 
@@ -306,17 +323,14 @@ def combine_videos(
             # Get the duration of the input stream
             iprobe = ffmpeg.probe(video_path)
             input_duration = float(iprobe["format"]["duration"])
-
+            if input_duration<req_dur:
+              loop_video(video_path, req_dur)
+            input_duration = float(iprobe["format"]["duration"])
             # Check if clip is longer than the remaining audio
             if (max_duration - tot_dur) < input_duration:
                 input_duration = max_duration - tot_dur
-
-            # Only shorten clips if the calculated clip length (req_dur) is shorter than the actual clip to prevent still image
             if req_dur < input_duration:
                 input_duration = req_dur
-
-            if input_duration > max_clip_duration:
-                input_duration = max_clip_duration
             if input_duration == 0:
                 break
 
@@ -335,7 +349,7 @@ def combine_videos(
             idx += 1
 
             # Write the clips to the main video
-    print(colored("[+] Merging" + str(idx) + "videos..", "blue"))
+    print(colored("[+] Merging " + str(idx) + " videos..", "blue"))
 
     input_paths = []
     for f in os.listdir("../temp"):
@@ -345,7 +359,7 @@ def combine_videos(
         [("file %s\n" % input_path) for input_path in input_paths]
     )
     ffmpeg.input("../temp/concat.txt", format="concat", safe=0).output(
-        "../temp/videoaudio.mp4", c="copy", an=None
+        combined_video_path, c="copy", an=None
     ).run()
 
     print(colored("[+] Successfully merged", "green"))
@@ -390,7 +404,7 @@ def generate_video(
         "subtitles",
         subtitles_path,
         **{
-            "force_style": f"FontName=bold_font,FontSize=14,PrimaryColour=&H00FFFF,OutlineColour=&H000000,Outline=1,Alignment={subtitles_position}"
+            "force_style": f"FontName=bold_font,FontSize=18,PrimaryColour=&H00FFFF,OutlineColour=&H000000,Outline=1,Alignment={subtitles_position}"
         },
     )
 
@@ -404,7 +418,6 @@ def generate_video(
     )
 
     # Run the ffmpeg command and generate the output file
-    # You can specify the number of threads to use with the threads argument
     ffmpeg.run(output_stream, overwrite_output=True)
 
     return "../Frontend/output.mp4"
