@@ -37,6 +37,12 @@ function insertScriptText(elem, data) {
 	textareaElem.value = data;
 	elem.appendChild(textareaElem);
 }
+function playVoiceover(elem) {
+	player = document.createElement("audio");
+	player.controls = "controls";
+	player.src = "../Frontend/ttsoutput.mp3";
+	elem.appendChild(player);
+}
 
 function checkForMessages() {
 	fetch("/check_messages")
@@ -45,8 +51,8 @@ function checkForMessages() {
 			if (data !== lastMessage) {
 				const msgDiv = document.getElementById("message");
 				const stdOut = document.getElementById("stdout");
-				if (!data.startsWith("Script text")){
-				msgDiv.innerHTML += data + "<br/>";
+				if (!data.startsWith("Script text")) {
+					msgDiv.innerHTML += data + "<br/>";
 				}
 				if (data.startsWith("Script text:")) {
 					data = data.replace("Script text: ", "");
@@ -54,6 +60,9 @@ function checkForMessages() {
 						script = data;
 						insertScriptText(stdout, script);
 					}
+				}
+				if (data.startsWith("Audio generation")) {
+				  playVoiceover(stdOut);
 				}
 				lastMessage = data;
 			}

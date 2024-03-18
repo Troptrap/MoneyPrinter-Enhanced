@@ -16,6 +16,7 @@ from youtube import upload_video
 from apiclient.errors import HttpError
 from flask import Flask, request, jsonify,Response,send_from_directory
 import sox
+import pydub
 import asyncio
 from nltk.tokenize import sent_tokenize
 from werkzeug import serving
@@ -122,11 +123,14 @@ def pexels_search_random():
   urls = dict(generate_pexels_video_pairs(data))
   return urls
 @app.route('/pexels/video/search/<term>', methods=['GET'])  
-def search_pexels_videos(term):
+def search_pexels_videos(term, orientation=None):
   url ='https://api.pexels.com/videos/search?query='+term
   headers= {
     'Authorization' : PEXELS_API_KEY
   }
+  orientation = request.args.get('orientation')
+  if orientation:
+    url = url + f"&orientation={orientation}"
   response = requests.get(url, headers=headers)
   data = response.json()
   urls = dict(generate_pexels_video_pairs(data))
@@ -463,7 +467,7 @@ def generate():
         message_put(f"Script text: {script}")
         # Generate search terms
         search_terms = gpt.get_search_terms(
-            data["videoSubject"], AMOUNT_OF_STOCK_VIDEOS, script, ai_model,g4f_model
+            data["videoSubject"], paragraph_number, script, ai_model,g4f_model
         )
         message_put("Search terms generated")
         # Split script into sentences
@@ -495,11 +499,11 @@ def generate():
           paths.append(current_tts_path)
           fcount += 1
 
-          # Combine all TTS files using sox
+          # Combine all TTS files 
         message_put("Voiceover generated")
         concat_audio(paths)
 
-        tts_path = os.path.abspath('../temp/ttsoutput.mp3')
+        tts_path = os.path.join("../Frontend", "ttsoutput.mp3")
         try:
           subtitles_path = generate_subtitles(audio_path=tts_path, sentences=sentences, audio_clips=paths, voice=voice_prefix)
         except Exception as e:
@@ -511,8 +515,9 @@ def generate():
           music_file=os.path.abspath(data['bgSong'])
           print("Processing music File: "+music_file)
           process_music(music_file)
-          message_put("Background music added")
-        ttsoutput_duration = sox.file_info.duration(tts_path)
+          message_put("Audio generation complete")
+        
+        ttsoutput_duration = pydub.AudioSegment.from_mp3(tts_path).duration_seconds
 
         video_urls = []
 
@@ -525,14 +530,13 @@ def generate():
                         "data": [],
                     }
                 )
-          #found_urls = search_for_stock_videos(
-              #  search_term, PEXELS_API_KEY, it, min_dur)
-          resp = requests.get(f"http://{HOST}:{PORT}/pexels/video/search/{search_term}")
-          found_urls = resp.json()
+          
+          found_urls = search_pexels_videos(search_term)
             # Check for duplicates
           for url in found_urls:
             if url not in video_urls:
               video_urls.append(url)
+              print(url)
               break
 
         # Check if video_urls is empty
@@ -550,7 +554,7 @@ def generate():
 
         # Let user know
         print(colored(f"[+] Downloading {len(video_urls)} videos...", "blue"))
-
+        message_put("Downloading videos..")
         # Save the videos
         for count,video_url in enumerate(video_urls, start=1):
             if not GENERATING:
@@ -575,11 +579,11 @@ def generate():
 
 
         
-        combine_videos(video_paths, ttsoutput_duration, 10,vformat)
+        combined = combine_videos(video_paths, ttsoutput_duration,vformat)
         message_put("Clips combined")
         # Put everything together
         try:
-            final_video_path = generate_video('../temp/videoaudio.mp4', tts_path, subtitles_path, subtitles_position)
+            final_video_path = generate_video(combined, tts_path, subtitles_path, subtitles_position)
         except Exception as e:
             print(colored(f"[-] Error generating final video: {e}", "red"))
             final_video_path = None
@@ -673,4 +677,4 @@ def cancel():
 if __name__ == "__main__":
 
     # Run Flask App
-    app.run(debug=False, host=HOST, port=PORT)
+    app.run(debug=True, host=HOST, port=PORT)

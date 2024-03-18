@@ -181,25 +181,25 @@ def get_search_terms(
     """
     # Build prompt
     prompt = f"""
-    Generate {amount} search terms for stock videos,
-    depending on the subject of a video.
-    Subject: {video_subject}
 
+
+   I'd like to generate {amount} keywords related to the video subject "{video_subject}" but generic enough to find relevant stock footage on Pexels. These keywords should be short, ideally 1-2 words each.
+
+    For example, if the video subject is "birthday party", some generic keywords could be "celebration", "festive decorations", or "blowing candles".
     The search terms are to be returned as
     a JSON-Array of strings.
 
-    Each search term should consist of 1 word,
-    always related to the main subject of the video.
+    Each search term should consist of 2-3 words maximum,always related to the main subject of the video.
     
     YOU MUST ONLY RETURN THE JSON-ARRAY OF STRINGS.
     YOU MUST NOT RETURN ANYTHING ELSE. 
     YOU MUST NOT RETURN THE SCRIPT.
     
-    The search terms must be related to the subject of the video.
+  
     Here is an example of a JSON-Array of strings:
-    ["search term 1", "search term 2", "search term 3"]
-
-    For context, here is the full text:
+    ["term 1", "term 2", "term 3"]
+    Text has {amount} paragraphs,for every paragraph in text, try to generate search terms to match the context, but don't use too specific words.
+    Here is the full text:
     {script}
     """
 
@@ -242,6 +242,7 @@ def get_search_terms(
     )
 
     # Return search terms
+    print(search_terms)
     return search_terms
 
 
