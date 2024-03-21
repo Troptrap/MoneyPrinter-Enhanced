@@ -8,7 +8,7 @@ httplib2==0.22.0
 nltk==3.8.1
 python-dotenv==1.0.1
 Requests==2.31.0
-sox==1.4.1
+sox==1.5.0
 srt_equalizer==0.1.9
 termcolor==2.4.0
 google-api-python-client 
