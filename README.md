@@ -1,3 +1,7 @@
+# Important Note:
+This code and especially what I'm working on (not public yet) has moved far from the original MoneyPrinter. What's in this repo kinda works, although the requirements are not updated and instructions could be improved by a lot. If you understand coding a little bit you can make this work as is.
+In some near future (when my local version will be finished, no date set) I will update code and this Readme.
+
 # MoneyPrinter 💸
 
 Automate the creation of YouTube videos locally, simply by providing a video topic to talk about.
