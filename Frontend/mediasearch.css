@@ -1,5 +1,5 @@
 html {
-	font-size: 1.5em;
+	font-size: 2.5em;
 }
 
 #closewindow {
@@ -8,8 +8,8 @@ html {
 .card {
 	position: relative;
 	border-style: solid;
-	width: 640px;
-	height: 360px;
+	width: 80vw;
+	height: 60vw;
 	text-align: center;
 	margin-bottom: 3em;
 	margin-top: 2em;
@@ -34,11 +34,16 @@ video {
 	max-height: 90%;
 	width: 100%;
 }
-<<<<<<< HEAD
+#full-image-dialog {
+	/*display: flex;*/
+	width: 100vw;
+	height: 100vh;
+}
 img {
 	object-fit: cover;
-	max-height: 90%;
-	width: 100%;
 }
-=======
->>>>>>> 71c1bc26d54fb75f63bb00ff7969cf7aed8bbda5
+
+#full-image-dialog img {
+	width: 100vw;
+	height: auto;
+}

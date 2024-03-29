@@ -244,6 +244,192 @@ def get_search_terms(
     # Return search terms
     print(search_terms)
     return search_terms
+    
+def generate_outline(
+    video_subject: str, amount: int,  ai_model: str, g4f_model: str
+) -> List[str]:
+
+    
+    """
+    Generate a JSON-Array of subtopics,
+    depending on the subject of the video.
+
+    Args:
+        video_subject (str): The subject of the video.
+        amount (int): The amount of subtopics to generate.
+        script (str): The script of the video.
+        ai_model (str): The AI model to use for generation.
+
+    Returns:
+        List[str]: The subtopics for the video subject.
+    """
+    # Build prompt
+    prompt = f"""
+
+    Generate a list of {amount} thought-provoking discussion subtopics for a video about {video_subject}. Subtopic description should be short and unique, 2-3 words.Subtopics should be chained to reflect normal flow of a video.
+    Subtopics are to be returned as JSON-List. 
+    Example output:
+    ["This is a subtopic","And this is another", "Short description of other subtopic"]
+
+    YOU MUST ONLY RETURN THE JSON-LIST OF STRINGS.
+    YOU MUST NOT RETURN ANYTHING ELSE. 
+    YOU MUST NOT RETURN THE SCRIPT.
+    
+  
+
+    """
+
+    # Generate search terms
+    response = generate_response(prompt, ai_model, g4f_model)
+
+    # Parse response into a list 
+    subtopics = []
+
+    try:
+        subtopics = json.loads(response)
+        print(f"Original response: {subtopics}")
+        if not isinstance(subtopics, list) or not all(
+            isinstance(term, str) for term in subtopics
+        ):
+            raise ValueError("Response is not a list of strings.")
+    except (json.JSONDecodeError, ValueError):
+        print(
+            colored(
+                "[*] GPT returned an unformatted response. Attempting to clean...",
+                "yellow",
+            )
+        )
+
+        # Attempt to extract list-like string and convert to list
+        match = re.search(r'\["(?:[^"\\]|\\.)*"(?:,\s*"[^"\\]*")*\]', response)
+        if match:
+            try:
+                subtopics = json.loads(match.group())
+            except json.JSONDecodeError:
+                print(colored("[-] Could not parse response.", "red"))
+                return []
+
+    # Let user know
+    print(
+        colored(
+            f"\nGenerated {len(subtopics)} subtopics: {', '.join(subtopics)}",
+            "cyan",
+        )
+    )
+
+    # Return search terms
+    print(subtopics)
+    return subtopics
+def generate_script_from_outline(video_subject: str, subtopics: List[str], subtopic: str,amount: int, ai_model: str, g4f_model: str) -> str:
+  
+  subtopics_string = ','.join(subtopics)
+  prompt = f"""
+  We are creating a video script about {video_subject}. We have a list of subtopics as following:
+  {subtopics_string}
+  For now, focus on "{subtopic}" and generate a text, exactly {amount} paragraphs long. 
+  
+  ONLY RETURN THE RAW CONTENT OF THE TEXT. DO NOT INCLUDE "VOICEOVER", "NARRATOR" OR SIMILAR INDICATORS OF WHAT SHOULD BE SPOKEN AT THE BEGINNING OF EACH PARAGRAPH OR LINE. YOU MUST NOT MENTION THE PROMPT, OR ANYTHING ABOUT THE SCRIPT ITSELF. ALSO, NEVER TALK ABOUT THE AMOUNT OF PARAGRAPHS OR LINES. JUST WRITE THE TEXT.
+  
+  """
+      # Generate script
+  response = generate_response(prompt, ai_model, g4f_model)
+
+  print(colored(response, "cyan"))
+
+    # Return the generated script
+  if response:
+        # Clean the script
+        # Remove asterisks, hashes
+        response = response.replace("*", "")
+        response = response.replace("#", "")
+
+        # Remove markdown syntax
+        response = re.sub(r"\[.*\]", "", response)
+        response = re.sub(r"\(.*\)", "", response)
+        response = re.sub(r"([0-9]+\.)", "\n\n", response)
+
+        # Split the script into paragraphs
+        paragraphs = response.split("\n\n")
+
+        # Select the specified number of paragraphs
+        selected_paragraphs = paragraphs[:amount]
+
+        # Join the selected paragraphs into a single string
+        final_script = "\n\n".join(selected_paragraphs)
+
+        # Print to console the number of paragraphs used
+        print(
+          
+            colored(f"Number of paragraphs used: {len(selected_paragraphs)}", "green")
+        )
+        return final_script
+  else:
+        print(colored("[-] GPT returned an empty response.", "red"))
+        return None
+def generate_intro_from_outline(video_subject: str, subtopics: List[str], ai_model: str, g4f_model: str) -> str:
+  
+  subtopics_string = ','.join(subtopics)
+  prompt = f"""
+  We are creating a video script about {video_subject}. We have a list of subtopics as following:
+  {subtopics_string}
+  For now, generate a catchy and intriguing intro for the video. 
+  
+  ONLY RETURN THE RAW CONTENT OF THE TEXT. DO NOT INCLUDE "VOICEOVER", "NARRATOR" OR SIMILAR INDICATORS OF WHAT SHOULD BE SPOKEN AT THE BEGINNING OF EACH PARAGRAPH OR LINE. YOU MUST NOT MENTION THE PROMPT, OR ANYTHING ABOUT THE SCRIPT ITSELF. ALSO, NEVER TALK ABOUT THE AMOUNT OF PARAGRAPHS OR LINES. JUST WRITE THE TEXT.
+  
+  """
+      # Generate script
+  response = generate_response(prompt, ai_model, g4f_model)
+
+  print(colored(response, "cyan"))
+
+    # Return the generated script
+  if response:
+        # Clean the script
+        # Remove asterisks, hashes
+        response = response.replace("*", "")
+        response = response.replace("#", "")
+
+        # Remove markdown syntax
+        response = re.sub(r"\[.*\]", "", response)
+        response = re.sub(r"\(.*\)", "", response)
+
+
+        return response
+  else:
+        print(colored("[-] GPT returned an empty response.", "red"))
+        return None
+def generate_outro_from_outline(video_subject: str, subtopics: List[str], ai_model: str, g4f_model: str) -> str:
+  
+  subtopics_string = ','.join(subtopics)
+  prompt = f"""
+  We are creating a video script about {video_subject}. We have a list of subtopics as following:
+  {subtopics_string}
+  Generate a final short message for the video. 
+  
+  ONLY RETURN THE RAW CONTENT OF THE TEXT. DO NOT INCLUDE "VOICEOVER", "NARRATOR" OR SIMILAR INDICATORS OF WHAT SHOULD BE SPOKEN AT THE BEGINNING OF EACH PARAGRAPH OR LINE. YOU MUST NOT MENTION THE PROMPT, OR ANYTHING ABOUT THE SCRIPT ITSELF. ALSO, NEVER TALK ABOUT THE AMOUNT OF PARAGRAPHS OR LINES. JUST WRITE THE TEXT.
+  
+  """
+      # Generate script
+  response = generate_response(prompt, ai_model, g4f_model)
+
+  print(colored(response, "cyan"))
+
+    # Return the generated script
+  if response:
+        # Clean the script
+        # Remove asterisks, hashes
+        response = response.replace("*", "")
+        response = response.replace("#", "")
+
+        # Remove markdown syntax
+        response = re.sub(r"\[.*\]", "", response)
+        response = re.sub(r"\(.*\)", "", response)
+
+
+        return response
+  else:
+        print(colored("[-] GPT returned an empty response.", "red"))
+        return None
 
 
 def generate_metadata(

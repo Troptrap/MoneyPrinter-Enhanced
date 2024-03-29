@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 from youtube import upload_video
 from apiclient.errors import HttpError
 from flask import Flask, request, jsonify,Response,send_from_directory
-import sox
+import fleep
 import pydub
+import uuid
 import asyncio
 from nltk.tokenize import sent_tokenize
 from werkzeug import serving
@@ -66,16 +67,196 @@ def message_get():
 
    
 def generate_pexels_video_pairs(data):
-    for video in data["videos"]:
+    vids = {}
+    for count,video in enumerate(data["videos"]):
         big_url = f"https://www.pexels.com/video/{video['id']}/download/"
         small_url = video['video_files'][0]['link']
-        yield big_url, small_url
+        thumb = video['video_pictures'][0]['picture']
+        vids[count] = {'big_url':big_url,'small_url':small_url,'thumb':thumb}
+    return vids
 def generate_pixabay_video_pairs(data):
-    for video in data["hits"]:
-        big_url = video['videos']['large']['url']
-        small_url = video['videos']['small']['url']
-        yield big_url, small_url
+  vids = {}
+  for count,video in enumerate(data["hits"]):
+      big_url = video['videos']['large']['url']
+      small_url = video['videos']['tiny']['url']
+      thumb = video['videos']['tiny']['thumbnail']
+      vids[count] = {"big_url":big_url,"small_url":small_url,"thumb":thumb}
+  return vids
+ 
+@app.route("/api/save-script", methods=["POST"])
+def save_script():
+ script = request.get_json()
+ with open('../Frontend/script.json','w') as f:
+   json.dump(script,f)
+ if script:
+   return jsonify("Script saved")
+ else: 
+   return jsonify("Script empty")
+@app.route("/api/generate-script", methods=["POST"])
+def generate_script():
+   
+        # Set global variable
+        global GENERATING
+        GENERATING = True
+
+        # Clean
+        clean_dir("../temp/")
+        clean_dir("../subtitles/")
+        message_put("Cleaned temporary files!")
+        print(message_queue)
+
+        # Parse JSON
+        data = request.get_json()
+        paragraph_number = int(data.get('paragraphNumber', 1))  # Default to 1 if not provided
+        subtopic_number = int(data.get('subtopicNumber', 2))  # Default to 1 if not provided
+        ai_model = data.get('aiModel')  # Get the AI model selected by the user
+        g4f_model = data.get('g4fmodel')  # Get the AI model selected by the user
+    
+
+        # Get 'useMusic' from the request data and default to False if not provided
+
+
+      
+        # Print little information about the video which is to be generated
+        print(colored("[Video to be generated]", "blue"))
+        print(colored("   Subject: " + data["videoSubject"], "blue"))
+        print(colored("   AI Model: " + ai_model, "blue"))  # Print the AI model being used
+      
+        if not GENERATING:
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "Video generation was cancelled.",
+                    "data": [],
+                }
+            )
+            
+        print(f"Subtopics: {subtopic_number}") 
+        outline = gpt.generate_outline(data["videoSubject"], subtopic_number, ai_model, g4f_model)
+        print(outline)
+        scriptjson = {}
+        scriptjson[0] ={ 'title':'Intro', 'text':gpt.generate_intro_from_outline(data["videoSubject"], outline, ai_model, g4f_model)}
+        script = ""
+        for count,subtopic in enumerate(outline, start=1):
+          if not GENERATING:
+            return jsonify(
+                    {
+                        "status": "error",
+                        "message": "Video generation was cancelled.",
+                        "data": [],
+                    }
+                )
+          print("Sleep 2 sec")
+          time.sleep(2);
+          print("Waking up")
+          subtopicscript = gpt.generate_script_from_outline(data["videoSubject"], outline,subtopic, paragraph_number, ai_model, g4f_model)
+          script += '<p>'+subtopicscript+'</p>'
+          innerjson = {'title':subtopic, 'text':subtopicscript}
+          scriptjson[count] = innerjson
+          if count==len(outline):
+            scriptjson[len(outline)+1] ={ 'title':'Outro', 'text':gpt.generate_outro_from_outline(data["videoSubject"], outline, ai_model, g4f_model)}  
+            
+          print(scriptjson)
         
+        message_put("Script generated")
+        
+            # Split script into sentences
+        
+        
+        return(jsonify(scriptjson))
+ 
+@app.route('/generate-voiceover', methods=['POST'])
+def generate_voiceover():
+  GENERATING = True
+  data = request.get_json()
+  script = data["script"]
+  use_music = data.get('useMusic', False)
+  voice = data["voice"]
+  ttsengine = data["ttsengine"]
+  sentences = sent_tokenize(script)
+  print(sentences)
+        # Remove empty strings
+  sentences = list(filter(lambda x: x != "", sentences))
+  paths = []
+  fcount = 1
+          # Generate TTS for every sentence
+  for sentence in sentences:
+    if not GENERATING:
+      return jsonify(
+                      {
+                          "status": "error",
+                          "message": "Video generation was cancelled.",
+                          "data": [],
+                      }
+                  )
+    current_tts_path = os.path.abspath(f"../temp/{fcount}.mp3")
+    message_put(f"TTS: {sentence}")
+    if ttsengine=="tiktok":
+      tiktok_tts(sentence, voice, filename=current_tts_path)
+    elif ttsengine=="microsoft":
+      try:
+        asyncio.run(msft_tts(sentence,voice,current_tts_path))
+      except Exception as e:
+              raise e
+
+    paths.append(current_tts_path)
+    fcount += 1
+
+          # Combine all TTS files 
+  message_put("Voiceover generated")
+  concat_audio(paths)
+  tts_path = os.path.join("../Frontend", "ttsoutput.mp3")
+  if use_music:
+          music_file=os.path.abspath(data['bgSong'])
+          print("Processing music File: "+music_file)
+          process_music(music_file)
+          message_put("Audio generation complete")
+  return(jsonify(tts_path))
+ 
+@app.route('/generate-sample', methods=['POST'])
+def generate_sample():
+  data = request.get_json()
+  script = data["script"]
+  voice = data["voice"]
+  ttsengine = data["ttsengine"]
+  sentences = sent_tokenize(script)
+  print(sentences)
+        # Remove empty strings
+  sentences = list(filter(lambda x: x != "", sentences))
+  paths = []
+  fcount = 1
+          # Generate TTS for every sentence
+  for sentence in sentences:
+    
+    current_tts_path = os.path.abspath(f"../temp/{fcount}.mp3")
+    message_put(f"TTS: {sentence}")
+    if ttsengine=="tiktok":
+      tiktok_tts(sentence, voice, filename=current_tts_path)
+    elif ttsengine=="microsoft":
+      try:
+        asyncio.run(msft_tts(sentence,voice,current_tts_path))
+      except Exception as e:
+              raise e
+
+    paths.append(current_tts_path)
+    fcount += 1
+  if len(paths)<2:
+    combined_audio = pydub.AudioSegment.from_file(paths[0])
+  else:
+    combined_audio = pydub.AudioSegment.empty()  # Create an empty AudioSegment to hold the combined audio
+
+    for path in paths:
+          audio_file = pydub.AudioSegment.from_file(path)  # Load each audio file into an AudioSegment
+          combined_audio += audio_file  # Concatenate the audio files sequentially
+
+  sample_path = os.path.join("../Frontend", "sample.mp3")
+  combined_audio.export(
+        sample_path, format="mp3"
+    )  
+  
+  return(jsonify("Sample generated"))
+
+
 @app.route('/g4f-models', methods=['GET'])
 def g4f_models_list():
   g4fm = g4f.Model.__all__()
@@ -156,14 +337,15 @@ def search_pixabay_videos(term):
   url = f'https://pixabay.com/api/videos/?key={PIXABAY_API_KEY}&q={term}'
   response = requests.get(url)
   data = response.json()
-  urls = dict(generate_pixabay_video_pairs(data))
+  print(data)
+  urls = generate_pixabay_video_pairs(data)
   return jsonify(urls)
 @app.route('/pixabay/video/search/', methods=['GET'])
 def random_pixabay_videos():
   url = f'https://pixabay.com/api/videos/?key={PIXABAY_API_KEY}&per_page=15'
   response = requests.get(url)
   data = response.json()
-  urls = dict(generate_pixabay_video_pairs(data))
+  urls = generate_pixabay_video_pairs(data)
   return jsonify(urls)
   
 @app.route('/unsplash/photo/search/', methods=['GET'])  
@@ -365,7 +547,7 @@ def serve_music(path):
 @app.route('/media/<path>')
 def serve_media(path):
     return send_from_directory('../media', path)
-    
+
 @app.route('/grabmedia', methods=['POST'])
 def grabmedia():
   data = request.get_json()
@@ -373,30 +555,39 @@ def grabmedia():
   with open('../media/list.json') as f:
     files = json.loads(f.read())
     if url not in files.keys():
-    
       try:
-        with requests.get(url) as r:
-      
-          fname = ''
-          if "Content-Disposition" in r.headers.keys():
-            fname = re.findall("filename=(.+)[;]", r.headers["Content-Disposition"])[0].replace(" ","").replace('"','').replace(':','')
-            print(fname)
-          else:
-            fname = url.split("/")[-1]
-          with open(f"../media/{fname}","wb") as f:
-            f.write(r.content)
-          with open('../media/list.json') as f:
+        with requests.get(url, stream=True) as r:
+          # Generate UUID
+          uuid_hex = uuid.uuid4().hex
+          
+
+          # Download content
+          r.raise_for_status()  # Raise an exception for failed downloads
+          content = b''
+          for chunk in r.iter_content(1024):
+            content += chunk
+
+          # Use fleep to determine extension
+          info = fleep.get(content[:128])  # Read first 128 bytes
+          extension = info.extension[0] if info.extension else ''  # Get first extension
+
+          # Save file with extension
+          with open(f"../media/{uuid_hex}.{extension}", "wb") as f:
+            f.write(content)
+
+            
+          with open('../media/list.json', 'r') as f:
             files = json.loads(f.read())
-          files[url] = fname
+          
+          files[url] = f"{uuid_hex}.{extension}"
           print(files)
           with open('../media/list.json','w') as f:
             json.dump(files,f)
-      
       except RequestException as e:
         print(e)
 
-    
-  return jsonify({'downloaded':'true'})
+    return jsonify({'downloaded': 'true'})
+
 
   
 @app.route('/')
@@ -533,7 +724,9 @@ def generate():
           
           found_urls = search_pexels_videos(search_term)
             # Check for duplicates
-          for url in found_urls:
+          print(found_urls)
+          for index,video in enumerate(found_urls):
+            url = found_urls[index]['big_url'] 
             if url not in video_urls:
               video_urls.append(url)
               print(url)

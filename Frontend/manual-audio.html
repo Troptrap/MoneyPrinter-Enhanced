@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MoneyPrinter</title>
+
+		<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+		<script>
+			eruda.init();
+		</script>
+
+		<link
+			rel="icon"
+			href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💸</text></svg>" />
+
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css" />
+		<link rel="stylesheet" href="style.css" type="text/css" media="all" />
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/css/autoComplete.01.min.css" />
+	</head>
+
+	<body class="bg-blue-100 justify-center p-5">
+		<h1 class="text-4xl text-center mb-4">Manual Audio Creation</h1>
+		<p class="text-center text-gray-700">
+			This is a multi-step, semiautomated way to create videos. This
+			section creates voiceover with TTS and adds background music
+		</p>
+		<h2>Script</h2>
+		<div
+			id="script-text"
+			class="max-h-24 overflow-auto overscroll-clip max-w-fit bg-white border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500">
+			<p></p>
+		</div>
+		<div class="max-w-full flex flex-col justify-center" id="ttsdiv">
+			<p class="text-center text-gray-700">Choose TTS engine</p>
+			<form id="ttsform" action="">
+				<div class="radio-inputs max-w-full justify-center">
+					<label class="radio">
+						<input
+							type="radio"
+							name="TTSengine"
+							id="tiktok"
+							onclick="getengine(this)" />
+						<span class="eng">TikTok</span>
+					</label>
+					<label class="radio">
+						<input
+							type="radio"
+							name="TTSengine"
+							id="microsoft"
+							checked
+							onclick="getengine(this)" />
+						<span class="eng">Microsoft</span>
+					</label>
+				</div>
+			</form>
+		</div>
+		<div class="max-w-fit flex flex-col justify-center mt-8">
+			<select
+				name="tiktokvoice"
+				id="tiktokvoice"
+				class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden">
+				<option value="en_us_ghostface">Ghost Face</option>
+				<option value="en_us_chewbacca">Chewbacca</option>
+				<option value="en_us_c3po">C3PO</option>
+				<option value="en_us_stitch">Stitch</option>
+				<option value="en_us_stormtrooper">Stormtrooper</option>
+				<option value="en_us_rocket">Rocket</option>
+				<option value="en_au_001">English AU - Female</option>
+				<option value="en_au_002">English AU - Male</option>
+				<option value="en_uk_001">English UK - Male 1</option>
+				<option value="en_uk_003">English UK - Male 2</option>
+				<option value="en_us_001">English US - Female (Int. 1)</option>
+				<option value="en_us_002">English US - Female (Int. 2)</option>
+				<option value="en_us_006">English US - Male 1</option>
+				<option value="en_us_007">English US - Male 2</option>
+				<option value="en_us_009">English US - Male 3</option>
+				<option value="en_us_010">English US - Male 4</option>
+				<option value="fr_001">French - Male 1</option>
+				<option value="fr_002">French - Male 2</option>
+				<option value="de_001">German - Female</option>
+				<option value="de_002">German - Male</option>
+				<option value="es_002">Spanish - Male</option>
+				<option value="es_mx_002">Spanish MX - Male</option>
+				<option value="br_001">Portuguese BR - Female 1</option>
+				<option value="br_003">Portuguese BR - Female 2</option>
+				<option value="br_004">Portuguese BR - Female 3</option>
+				<option value="br_005">Portuguese BR - Male</option>
+				<option value="id_001">Indonesian - Female</option>
+				<option value="jp_001">Japanese - Female 1</option>
+				<option value="jp_003">Japanese - Female 2</option>
+				<option value="jp_005">Japanese - Female 3</option>
+				<option value="jp_006">Japanese - Male</option>
+				<option value="kr_002">Korean - Male 1</option>
+				<option value="kr_003">Korean - Female</option>
+				<option value="kr_004">Korean - Male 2</option>
+				<option value="en_female_f08_salut_damour">Alto</option>
+				<option value="en_male_m03_lobby">Tenor</option>
+				<option value="en_female_f08_warmy_breeze">Warmy Breeze</option>
+				<option value="en_male_m03_sunshine_soon">Sunshine Soon</option>
+				<option selected value="en_male_narration">narrator</option>
+				<option value="en_male_funny">wacky</option>
+				<option value="en_female_emotional">peaceful</option>
+			</select>
+			<select
+				name="microsoftvoice"
+				id="microsoftvoice"
+				class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500">
+				<option value=""></option>
+			</select>
+			<div class="flex-grow">
+				<input
+					type="search"
+					name="mslang"
+					id="mslang"
+					autocapitalize="none"
+					autocomplete="off"
+					value="en" />
+			</div>
+		</div>
+		<div id="sample" class="max-w-fit flex flex-col w-full">
+			<button
+				id="show-sample"
+				type="submit"
+				class="border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500">
+				Listen sample
+			</button>
+
+			<div id="sample-inner" class="hidden">
+				<p
+					name="sample-text"
+					id="sample-text"
+					contenteditable="true"
+					class="max-w-fit bg-white border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500">
+					This is a sample text, change it if you don't like it or if
+					you switch languages
+				</p>
+
+				<button
+					id="play-sample"
+					type="submit"
+					class="bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-4 py-2 rounded-md">
+					Generate sample
+				</button>
+				<audio controls id="sample-player" src="../Frontend/sample.mp3">
+					Your browser does not support the audio element.
+				</audio>
+			</div>
+		</div>
+
+		<div
+			class="flex flex-col space-y-4 transition-all duration-150 linear border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500"
+			id="advancedOptions">
+			<label for="useMusicToggle" class="flex items-center text-blue-600">
+				<input
+					type="checkbox"
+					checked="true"
+					name="useMusicToggle"
+					id="useMusicToggle"
+					class="mr-2" />
+				Use Music
+			</label>
+			<div id="audiolibrary" class="flex flex-col mt-8">
+				<label
+					for="randomArtist"
+					class="flex items-center text-blue-600">
+					<input
+						type="checkbox"
+						checked="true"
+						name="randomArtist"
+						id="randomArtist" />
+
+					Random Artist
+				</label>
+
+				<input
+					type="search"
+					autocomplete="off"
+					style="background-color: white; width: 100%"
+					name="artist"
+					id="artist"
+					value=""
+					class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden" />
+				<label
+					for="randomTitle"
+					class="flex items-center text-blue-600">
+					<input
+						type="checkbox"
+						checked="true"
+						name="randomTitle"
+						id="randomTitle" />
+
+					Random Title
+				</label>
+				<input
+					type="search"
+					autocomplete="off"
+					style="background-color: white; width: 100%"
+					name="songtitle"
+					id="songtitle"
+					value=""
+					class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden" />
+				<label for="randomMood" class="flex items-center text-blue-600">
+					<input
+						type="checkbox"
+						checked="true"
+						name="randomMood"
+						id="randomMood" />
+
+					Random Mood
+				</label>
+				<select
+					required
+					name="mood"
+					id="mood"
+					style="background-color: white; width: 100%"
+					class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden">
+					<option value="" disabled selected hidden>
+						Select mood...
+					</option>
+				</select>
+				<label
+					for="randomGenre"
+					class="flex items-center text-blue-600">
+					<input
+						type="checkbox"
+						checked="true"
+						name="randomGenre"
+						id="randomGenre" />
+
+					Random Genre
+				</label>
+				<input
+					type="search"
+					autocomplete="off"
+					style="background-color: white; width: 100%"
+					name="genre"
+					id="genre"
+					value=""
+					class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden" />
+				<label
+					for="randomInstrument"
+					class="flex items-center text-blue-600">
+					<input
+						type="checkbox"
+						checked="true"
+						name="randomInstrument"
+						id="randomInstrument" />
+
+					Random instrument
+				</label>
+				<input
+					type="search"
+					autocomplete="off"
+					style="background-color: white; width: 100%"
+					name="instrument"
+					id="instrument"
+					value=""
+					class="w-min border-2 border-blue-300 p-2 rounded-md focus:outline-none focus:border-blue-500 hidden" />
+			</div>
+			<div id="audiolibraryresults">
+				<table id="audiolibrarytable"></table>
+			</div>
+			<input type="hidden" name="bgSong" id="bgSong" value="" />
+			<div id="songplayer"></div>
+		</div>
+		<div id="final-audio" class="py-1">
+			<p id="found-final">
+				Audio found, check if it matches script. Note: if you
+				disconnected from server during generation the audio will likely
+				still be processed by server, check server logs and reload page
+			</p>
+			<audio id="final-player" src="ttsoutput.mp3" controls></audio>
+			<button
+				id="generateAButton"
+				class="bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-4 py-2 rounded-md">
+				Generate Audio
+			</button>
+			<button
+				id="cancelAButton"
+				class="bg-red-500 hover:bg-red-700 duration-100 linear text-white px-4 py-2 rounded-md hidden">
+				Cancel
+			</button>
+		</div>
+
+		<div class="py-1.5">
+			<button
+				id="back-script"
+				class="bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-4 py-2 rounded-md">
+				Back &lt;&lt; Regenerate script
+			</button>
+
+			<button
+				id="forward-media"
+				class="bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-4 py-2 rounded-md">
+				Next &gt;&gt; Find Media
+			</button>
+		</div>
+
+		<footer class="flex justify-center mt-8">
+			<div class="flex flex-col space-y-4">
+				<p
+					class="text-center text-gray-700 border-solid border-2 border-red-300 rounded-md">
+					Troptrap was here
+				</p>
+			</div>
+		</footer>
+
+		<script src="manual-audio.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/tarekraafat-autocomplete.js/10.2.7/autoComplete.min.js"></script>
+	</body>
+</html>
