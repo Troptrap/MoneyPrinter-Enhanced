@@ -6,6 +6,7 @@ Flask_Cors
 fleep
 g4f
 google_api_python_client
+google-generativeai
 httplib2
 nltk
 oauth2client
@@ -16,4 +17,5 @@ python-dotenv
 Requests
 srt_equalizer
 termcolor
-Werkzeug
+google-auth-httplib2
+google-auth-oauthlib

@@ -68,7 +68,7 @@ def message_get():
    
 def generate_pexels_video_pairs(data):
     vids = {}
-    for count,video in enumerate(data["videos"]):
+    for count,video in enumerate(data['videos']):
         big_url = f"https://www.pexels.com/video/{video['id']}/download/"
         small_url = video['video_files'][0]['link']
         thumb = video['video_pictures'][0]['picture']
@@ -260,7 +260,7 @@ def generate_sample():
 @app.route('/g4f-models', methods=['GET'])
 def g4f_models_list():
   g4fm = g4f.Model.__all__()
-  return g4fm
+  return jsonify(g4fm)
 @app.route('/check_messages')
 def check_messages():
     # Check if there's a message in the queue (non-blocking)

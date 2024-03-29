@@ -4,13 +4,13 @@ import uuid
 import requests
 import srt_equalizer
 import assemblyai as aai
-
+import pydub
 from typing import List
 from termcolor import colored
 from dotenv import load_dotenv
 from datetime import timedelta
 import ffmpeg
-import sox
+
 
 load_dotenv("../.env")
 
@@ -98,7 +98,7 @@ def __generate_subtitles_locally(
         # Create a stream object from the audio file
         ffmpeg.input(audio_file)
         # Get the duration of the audio stream in seconds
-        duration = sox.file_info.duration(audio_file)
+        duration = pydub.AudioSegment.from_mp3(audio_file).duration_seconds
         end_time = start_time + duration
 
         # Format: subtitle index, start time --> end time, sentence
@@ -395,7 +395,7 @@ def generate_video(
     video_stream = ffmpeg.input(combined_video_path)
 
     # Create a stream object from the text-to-speech audio
-    duration = sox.file_info.duration(tts_path)
+    duration = pydub.AudioSegment.from_mp3(tts_path).duration_seconds
     audio_stream = ffmpeg.input(tts_path, t=duration)
 
     # Add the subtitles to the video stream using the subtitles filter
