@@ -14,7 +14,7 @@ from termcolor import colored
 from dotenv import load_dotenv
 from youtube import upload_video
 from apiclient.errors import HttpError
-from flask import Flask, request, jsonify,Response,send_from_directory
+from flask import Flask, request, jsonify,send_from_directory
 import fleep
 import pydub
 import uuid
@@ -147,7 +147,7 @@ def generate_script():
                     }
                 )
           print("Sleep 2 sec")
-          time.sleep(2);
+          time.sleep(2)
           print("Waking up")
           subtopicscript = gpt.generate_script_from_outline(data["videoSubject"], outline,subtopic, paragraph_number, ai_model, g4f_model)
           script += '<p>'+subtopicscript+'</p>'
@@ -576,7 +576,7 @@ def grabmedia():
             f.write(content)
 
             
-          with open('../media/list.json', 'r') as f:
+          with open('../media/list.json') as f:
             files = json.loads(f.read())
           
           files[url] = f"{uuid_hex}.{extension}"
@@ -654,7 +654,7 @@ def generate():
         script = gpt.generate_script(data["videoSubject"], paragraph_number, ai_model, voice, data["customPrompt"], g4f_model)  # Pass the AI model to the script generation
         print(script)
         message_put("Script generated")
-        time.sleep(2);
+        time.sleep(2)
         message_put(f"Script text: {script}")
         # Generate search terms
         search_terms = gpt.get_search_terms(
