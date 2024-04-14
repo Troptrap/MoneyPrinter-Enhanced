@@ -1,25 +1,21 @@
-body {
-  max-width: 90vw;
-  display: flex;
-}
+
 
 .card {
 	border-style: solid;
 	border-width: 2;
 	text-align: center;
+	width: 25vh;
+	aspect-ratio: 1/1;
+	padding: 0.3em;
 	
 }
 
 .card img {
-  position: relative;
-	width: 25vw;
-	aspect-ratio: 1/1;
+    height: 100%;
 	object-fit: cover;
 }
 .card video {
-  position: relative;
-	width: 25vw;
-	aspect-ratio: 1/1;
+    height: 100%;
 	object-fit: cover;
 }
 
@@ -32,8 +28,9 @@ body {
 }
 .text {
 	overflow-y: auto;
+	height: 60%;
 }
 .part {
-	height: 15em;
-	width: 100vh;
+	height: 25em;
+
 }
