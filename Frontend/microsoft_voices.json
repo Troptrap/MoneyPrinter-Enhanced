@@ -377,47 +377,6 @@
             "en-PH-RosaNeural": "Rosa"
         }
     ],
-    "en-US": [
-        {
-            "en-US-AvaNeural": "Ava"
-        },
-        {
-            "en-US-AndrewNeural": "Andrew"
-        },
-        {
-            "en-US-EmmaNeural": "Emma"
-        },
-        {
-            "en-US-BrianNeural": "Brian"
-        },
-        {
-            "en-US-AnaNeural": "Ana"
-        },
-        {
-            "en-US-AriaNeural": "Aria"
-        },
-        {
-            "en-US-ChristopherNeural": "Christopher"
-        },
-        {
-            "en-US-EricNeural": "Eric"
-        },
-        {
-            "en-US-GuyNeural": "Guy"
-        },
-        {
-            "en-US-JennyNeural": "Jenny"
-        },
-        {
-            "en-US-MichelleNeural": "Michelle"
-        },
-        {
-            "en-US-RogerNeural": "Roger"
-        },
-        {
-            "en-US-SteffanNeural": "Steffan"
-        }
-    ],
     "en-SG": [
         {
             "en-SG-LunaNeural": "Luna"
@@ -457,6 +416,59 @@
         },
         {
             "en-GB-ThomasNeural": "Thomas"
+        }
+    ],
+    "en-US": [
+        {
+            "en-US-AvaMultilingualNeural": "AvaMultilingual"
+        },
+        {
+            "en-US-AndrewMultilingualNeural": "AndrewMultilingual"
+        },
+        {
+            "en-US-EmmaMultilingualNeural": "EmmaMultilingual"
+        },
+        {
+            "en-US-BrianMultilingualNeural": "BrianMultilingual"
+        },
+        {
+            "en-US-AvaNeural": "Ava"
+        },
+        {
+            "en-US-AndrewNeural": "Andrew"
+        },
+        {
+            "en-US-EmmaNeural": "Emma"
+        },
+        {
+            "en-US-BrianNeural": "Brian"
+        },
+        {
+            "en-US-AnaNeural": "Ana"
+        },
+        {
+            "en-US-AriaNeural": "Aria"
+        },
+        {
+            "en-US-ChristopherNeural": "Christopher"
+        },
+        {
+            "en-US-EricNeural": "Eric"
+        },
+        {
+            "en-US-GuyNeural": "Guy"
+        },
+        {
+            "en-US-JennyNeural": "Jenny"
+        },
+        {
+            "en-US-MichelleNeural": "Michelle"
+        },
+        {
+            "en-US-RogerNeural": "Roger"
+        },
+        {
+            "en-US-SteffanNeural": "Steffan"
         }
     ],
     "et-EE": [

@@ -40,12 +40,11 @@ def generate_response(prompt: str, ai_model: str, g4f_model: str) -> str:
 
     elif ai_model in ["gpt3.5-turbo", "gpt4"]:
         model_name = (
-
             "gpt-3.5-turbo"
             if ai_model == "gpt3.5-turbo"
+            else "gpt-4-1106-preview" "gpt-3.5-turbo"
+            if ai_model == "gpt3.5-turbo"
             else "gpt-4-1106-preview"
-            "gpt-3.5-turbo" if ai_model == "gpt3.5-turbo" else "gpt-4-1106-preview"
-
         )
 
         response = (
@@ -65,8 +64,6 @@ def generate_response(prompt: str, ai_model: str, g4f_model: str) -> str:
         raise ValueError("Invalid AI model selected.")
 
     return response
-
-
 
 
 def generate_script(
@@ -151,21 +148,14 @@ def generate_script(
         final_script = "\n\n".join(selected_paragraphs)
 
         # Print to console the number of paragraphs used
-        print(
-          
-            colored(f"Number of paragraphs used: {len(selected_paragraphs)}", "green")
-        )
+        print(colored(f"Number of paragraphs used: {len(selected_paragraphs)}", "green"))
         return final_script
     else:
         print(colored("[-] GPT returned an empty response.", "red"))
         return None
 
 
-def get_search_terms(
-    video_subject: str, amount: int, script: str, ai_model: str, g4f_model: str
-) -> List[str]:
-
-    
+def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str, g4f_model: str) -> List[str]:
     """
     Generate a JSON-Array of search terms for stock videos,
     depending on the subject of a video.
@@ -211,9 +201,7 @@ def get_search_terms(
 
     try:
         search_terms = json.loads(response)
-        if not isinstance(search_terms, list) or not all(
-            isinstance(term, str) for term in search_terms
-        ):
+        if not isinstance(search_terms, list) or not all(isinstance(term, str) for term in search_terms):
             raise ValueError("Response is not a list of strings.")
 
     except (json.JSONDecodeError, ValueError):
@@ -244,12 +232,9 @@ def get_search_terms(
     # Return search terms
     print(search_terms)
     return search_terms
-    
-def generate_outline(
-    video_subject: str, amount: int,  ai_model: str, g4f_model: str
-) -> List[str]:
 
-    
+
+def generate_outline(video_subject: str, amount: int, ai_model: str, g4f_model: str) -> List[str]:
     """
     Generate a JSON-Array of subtopics,
     depending on the subject of the video.
@@ -282,15 +267,13 @@ def generate_outline(
     # Generate search terms
     response = generate_response(prompt, ai_model, g4f_model)
 
-    # Parse response into a list 
+    # Parse response into a list
     subtopics = []
 
     try:
         subtopics = json.loads(response)
         print(f"Original response: {subtopics}")
-        if not isinstance(subtopics, list) or not all(
-            isinstance(term, str) for term in subtopics
-        ):
+        if not isinstance(subtopics, list) or not all(isinstance(term, str) for term in subtopics):
             raise ValueError("Response is not a list of strings.")
     except (json.JSONDecodeError, ValueError):
         print(
@@ -320,10 +303,13 @@ def generate_outline(
     # Return search terms
     print(subtopics)
     return subtopics
-def generate_script_from_outline(video_subject: str, subtopics: List[str], subtopic: str,amount: int, ai_model: str, g4f_model: str) -> str:
-  
-  subtopics_string = ','.join(subtopics)
-  prompt = f"""
+
+
+def generate_script_from_outline(
+    video_subject: str, subtopics: List[str], subtopic: str, amount: int, ai_model: str, g4f_model: str
+) -> str:
+    subtopics_string = ",".join(subtopics)
+    prompt = f"""
   We are creating a video script about {video_subject}. We have a list of subtopics as following:
   {subtopics_string}
   For now, focus on "{subtopic}" and generate a text, exactly {amount} paragraphs long. 
@@ -331,13 +317,13 @@ def generate_script_from_outline(video_subject: str, subtopics: List[str], subto
   ONLY RETURN THE RAW CONTENT OF THE TEXT. DO NOT INCLUDE "VOICEOVER", "NARRATOR" OR SIMILAR INDICATORS OF WHAT SHOULD BE SPOKEN AT THE BEGINNING OF EACH PARAGRAPH OR LINE. YOU MUST NOT MENTION THE PROMPT, OR ANYTHING ABOUT THE SCRIPT ITSELF. ALSO, NEVER TALK ABOUT THE AMOUNT OF PARAGRAPHS OR LINES. JUST WRITE THE TEXT.
   
   """
-      # Generate script
-  response = generate_response(prompt, ai_model, g4f_model)
+    # Generate script
+    response = generate_response(prompt, ai_model, g4f_model)
 
-  print(colored(response, "cyan"))
+    print(colored(response, "cyan"))
 
     # Return the generated script
-  if response:
+    if response:
         # Clean the script
         # Remove asterisks, hashes
         response = response.replace("*", "")
@@ -358,18 +344,16 @@ def generate_script_from_outline(video_subject: str, subtopics: List[str], subto
         final_script = "\n\n".join(selected_paragraphs)
 
         # Print to console the number of paragraphs used
-        print(
-          
-            colored(f"Number of paragraphs used: {len(selected_paragraphs)}", "green")
-        )
+        print(colored(f"Number of paragraphs used: {len(selected_paragraphs)}", "green"))
         return final_script
-  else:
+    else:
         print(colored("[-] GPT returned an empty response.", "red"))
         return None
+
+
 def generate_intro_from_outline(video_subject: str, subtopics: List[str], ai_model: str, g4f_model: str) -> str:
-  
-  subtopics_string = ','.join(subtopics)
-  prompt = f"""
+    subtopics_string = ",".join(subtopics)
+    prompt = f"""
   We are creating a video script about {video_subject}. We have a list of subtopics as following:
   {subtopics_string}
   For now, generate a catchy and intriguing intro for the video. 
@@ -377,13 +361,13 @@ def generate_intro_from_outline(video_subject: str, subtopics: List[str], ai_mod
   ONLY RETURN THE RAW CONTENT OF THE TEXT. DO NOT INCLUDE "VOICEOVER", "NARRATOR" OR SIMILAR INDICATORS OF WHAT SHOULD BE SPOKEN AT THE BEGINNING OF EACH PARAGRAPH OR LINE. YOU MUST NOT MENTION THE PROMPT, OR ANYTHING ABOUT THE SCRIPT ITSELF. ALSO, NEVER TALK ABOUT THE AMOUNT OF PARAGRAPHS OR LINES. JUST WRITE THE TEXT.
   
   """
-      # Generate script
-  response = generate_response(prompt, ai_model, g4f_model)
+    # Generate script
+    response = generate_response(prompt, ai_model, g4f_model)
 
-  print(colored(response, "cyan"))
+    print(colored(response, "cyan"))
 
     # Return the generated script
-  if response:
+    if response:
         # Clean the script
         # Remove asterisks, hashes
         response = response.replace("*", "")
@@ -393,15 +377,15 @@ def generate_intro_from_outline(video_subject: str, subtopics: List[str], ai_mod
         response = re.sub(r"\[.*\]", "", response)
         response = re.sub(r"\(.*\)", "", response)
 
-
         return response
-  else:
+    else:
         print(colored("[-] GPT returned an empty response.", "red"))
         return None
+
+
 def generate_outro_from_outline(video_subject: str, subtopics: List[str], ai_model: str, g4f_model: str) -> str:
-  
-  subtopics_string = ','.join(subtopics)
-  prompt = f"""
+    subtopics_string = ",".join(subtopics)
+    prompt = f"""
   We are creating a video script about {video_subject}. We have a list of subtopics as following:
   {subtopics_string}
   Generate a final short message for the video. 
@@ -409,13 +393,13 @@ def generate_outro_from_outline(video_subject: str, subtopics: List[str], ai_mod
   ONLY RETURN THE RAW CONTENT OF THE TEXT. DO NOT INCLUDE "VOICEOVER", "NARRATOR" OR SIMILAR INDICATORS OF WHAT SHOULD BE SPOKEN AT THE BEGINNING OF EACH PARAGRAPH OR LINE. YOU MUST NOT MENTION THE PROMPT, OR ANYTHING ABOUT THE SCRIPT ITSELF. ALSO, NEVER TALK ABOUT THE AMOUNT OF PARAGRAPHS OR LINES. JUST WRITE THE TEXT.
   
   """
-      # Generate script
-  response = generate_response(prompt, ai_model, g4f_model)
+    # Generate script
+    response = generate_response(prompt, ai_model, g4f_model)
 
-  print(colored(response, "cyan"))
+    print(colored(response, "cyan"))
 
     # Return the generated script
-  if response:
+    if response:
         # Clean the script
         # Remove asterisks, hashes
         response = response.replace("*", "")
@@ -425,17 +409,13 @@ def generate_outro_from_outline(video_subject: str, subtopics: List[str], ai_mod
         response = re.sub(r"\[.*\]", "", response)
         response = re.sub(r"\(.*\)", "", response)
 
-
         return response
-  else:
+    else:
         print(colored("[-] GPT returned an empty response.", "red"))
         return None
 
 
-def generate_metadata(
-    video_subject: str, script: str, ai_model: str, g4f_model
-) -> Tuple[str, str, List[str]]:
-
+def generate_metadata(video_subject: str, script: str, ai_model: str, g4f_model) -> Tuple[str, str, List[str]]:
     """
     Generate metadata for a YouTube video, including the title, description, and keywords.
 
@@ -466,9 +446,7 @@ def generate_metadata(
 
     # Generate description
 
-    description = generate_response(
-        description_prompt, ai_model, g4f_model
-    ).strip()
+    description = generate_response(description_prompt, ai_model, g4f_model).strip()
 
     description = generate_response(description_prompt, ai_model, g4f_model).strip()
 

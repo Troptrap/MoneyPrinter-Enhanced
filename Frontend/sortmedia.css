@@ -1,0 +1,39 @@
+body {
+  max-width: 90vw;
+  display: flex;
+}
+
+.card {
+	border-style: solid;
+	border-width: 2;
+	text-align: center;
+	
+}
+
+.card img {
+  position: relative;
+	width: 25vw;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+.card video {
+  position: relative;
+	width: 25vw;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+
+.media {
+  display: flex;
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	min-height: 40%;
+}
+.text {
+	overflow-y: auto;
+}
+.part {
+	height: 15em;
+	width: 100vh;
+}

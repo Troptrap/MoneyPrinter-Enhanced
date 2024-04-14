@@ -10,13 +10,7 @@ async def voices_list():
         locale = voice["Locale"]
         if locale not in obj:
             obj[locale] = []
-        obj[locale].append(
-            {
-                voice["ShortName"]: voice["ShortName"]
-                .replace("Neural", "")
-                .replace(locale + "-", "")
-            }
-        )
+        obj[locale].append({voice["ShortName"]: voice["ShortName"].replace("Neural", "").replace(locale + "-", "")})
     with open("../Frontend/microsoft_voices.json", "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=4)
 

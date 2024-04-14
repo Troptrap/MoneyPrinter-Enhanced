@@ -11,8 +11,7 @@
 	</script>
 	<title>Media Search</title>
 </head>
-<body class="bg-blue-100 justify-items-center">
-
+<body class="bg-blue-100 justify-center">
 	<div class="flex">
 		<div class="sources" id="media-search">
 			<h1 class="text-4xl py-4">Find Media</h1>
@@ -68,6 +67,25 @@
 						value="Flickr Photo"
 						class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
 				</div>
+				<div class="flex-row">
+					
+						<input
+							type="file"
+							
+							name="file"
+							id="upload-file"
+							value="Upload File"
+							multiple
+							class="" />
+
+						<input
+							type="submit"
+							name="source"
+							id="upload-button"
+							value="Upload Files"
+							class="my-2 bg-blue-500 hover:bg-blue-700 duration-100 linear text-white px-1 py-1 rounded-md" />
+					
+				</div>
 			</div>
 			<div class="sources" id="media-results">
 				<dialog id="full-image-dialog">
@@ -80,6 +98,4 @@
 		src="mediasearch.js"
 		type="text/javascript"
 		charset="utf-8"></script>
-
-
 </body>

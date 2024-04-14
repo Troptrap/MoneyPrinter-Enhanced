@@ -14,7 +14,6 @@ from typing import List
 from termcolor import colored
 
 
-
 VOICES = [
     # DISNEY VOICES
     "en_us_ghostface",  # Ghost Face
@@ -82,9 +81,7 @@ def split_string(string: str, chunk_size: int) -> List[str]:
     result = []
     current_chunk = ""
     for word in words:
-        if (
-            len(current_chunk) + len(word) + 1 <= chunk_size
-        ):  # Check if adding the word exceeds the chunk size
+        if len(current_chunk) + len(word) + 1 <= chunk_size:  # Check if adding the word exceeds the chunk size
             current_chunk += f" {word}"
         else:
             if current_chunk:  # Append the current chunk if not empty
@@ -119,12 +116,7 @@ def generate_audio(text: str, voice: str) -> bytes:
 
 
 # creates an text to speech audio file
-def tiktok_tts(
-
-    text: str,
-    voice: str = "none",
-    filename: str = "output.mp3"
-) -> None:
+def tiktok_tts(text: str, voice: str = "none", filename: str = "output.mp3") -> None:
     # checking if the website is available
     global current_endpoint
 
@@ -166,9 +158,7 @@ def tiktok_tts(
                 audio_base64_data = str(audio).split('"')[3].split(",")[1]
 
             if audio_base64_data == "error":
-                print(
-                    colored("[-] This voice is unavailable right now", "red")
-                )
+                print(colored("[-] This voice is unavailable right now", "red"))
                 return
 
         else:
@@ -185,11 +175,7 @@ def tiktok_tts(
                     base64_data = str(audio).split('"')[3].split(",")[1]
 
                 if audio_base64_data == "error":
-                    print(
-                        colored(
-                            "[-] This voice is unavailable right now", "red"
-                        )
-                    )
+                    print(colored("[-] This voice is unavailable right now", "red"))
                     return "error"
 
                 audio_base64_data[index] = base64_data
@@ -197,9 +183,7 @@ def tiktok_tts(
             threads = []
             for index, text_part in enumerate(text_parts):
                 # Create and start a new thread for each text part
-                thread = threading.Thread(
-                    target=generate_audio_thread, args=(text_part, index)
-                )
+                thread = threading.Thread(target=generate_audio_thread, args=(text_part, index))
                 thread.start()
                 threads.append(thread)
 
@@ -213,10 +197,6 @@ def tiktok_tts(
         save_audio_file(audio_base64_data, filename)
 
         print(colored(f"[+] Audio file saved successfully as '{filename}'", "green"))
-      
 
     except Exception as e:
         print(colored(f"[-] An error occurred during TTS: {e}", "red"))
-
-
-

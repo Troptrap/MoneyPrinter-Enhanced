@@ -4,9 +4,7 @@ from typing import List
 from termcolor import colored
 
 
-def search_for_stock_videos(
-    query: str, api_key: str, it: int, min_dur: int
-) -> List[str]:
+def search_for_stock_videos(query: str, api_key: str, it: int, min_dur: int) -> List[str]:
     """Searches for stock videos based on a query.
 
     Searches for stock videos based on a query.

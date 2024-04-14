@@ -8,6 +8,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	const fullImageDialog = document.getElementById("full-image-dialog");
 	const closeDialog = document.getElementById("close-dialog");
+	const uploadBtn = document.getElementById("upload-button");
+	const uploadFile = document.getElementById("upload-file");
+	function uploadMedia() {
+		console.log("uploadMedia function triggered");
+		let data = new FormData();
+		for (const file of uploadFile.files) {
+			data.append("files", file);
+		}
+
+		fetch("/media-upload", {
+			method: "POST",
+			headers: new Headers(),
+			body: data
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				uploadFile.value = "";
+				console.log(data);
+			});
+	}
+	uploadBtn.addEventListener("click", uploadMedia);
 
 	function closeFullImage() {
 		const fullImage = fullImageDialog.querySelector("img");
@@ -130,7 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 	}
 
-
 	function getPhotos(photoSource) {
 		const term = document.getElementById("find").value;
 		const mediaResults = document.getElementById("media-results");
@@ -189,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					imghtml.classList.add("flex-col");
 					let imgfull = document.createElement("img");
 					imgfull.src = src;
-					card.addEventListener("click", function () {
+					imghtml.addEventListener("click", function () {
 						fullImageDialog.appendChild(imgfull);
 						fullImageDialog.showModal();
 					});
@@ -201,7 +221,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	pixabayvideo.addEventListener("click", removeUnusedRemote);
-	pixabayvideo.addEventListener("click",() => { getvid('pixabay')});
+	pixabayvideo.addEventListener("click", () => {
+		getvid("pixabay");
+	});
 	pexels.addEventListener("click", removeUnusedRemote);
 	pexels.addEventListener("click", () => {
 		getPhotos("pexels");
@@ -219,5 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		getPhotos("flickr");
 	});
 	pexelsvideo.addEventListener("click", removeUnusedRemote);
-	pexelsvideo.addEventListener("click",() => { getvid('pexels')});
+	pexelsvideo.addEventListener("click", () => {
+		getvid("pexels");
+	});
 });

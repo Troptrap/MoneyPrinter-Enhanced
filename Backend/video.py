@@ -19,7 +19,7 @@ ASSEMBLY_AI_API_KEY = os.getenv("ASSEMBLY_AI_API_KEY")
 
 def save_video(video_url: str, count: int, directory: str = "../temp"):
     """Saves a video from a given URL and returns the path to the video.
-    
+
     Saves a video from a given URL and returns the path to the video.
 
     Args:
@@ -67,9 +67,7 @@ def __generate_subtitles_assemblyai(audio_path: str, voice: str) -> str:
     return subtitles
 
 
-def __generate_subtitles_locally(
-    sentences: List[str], audio_files: List[str]
-) -> str:
+def __generate_subtitles_locally(sentences: List[str], audio_files: List[str]) -> str:
     """Generates subtitles from a given audio file and returns the path to the subtitles.
 
     Args:
@@ -83,36 +81,30 @@ def __generate_subtitles_locally(
         # Convert total seconds to the SRT time format: HH:MM:SS,mmm
         if total_seconds == 0:
             return "0:00:00,0"
-        return (
-            str(timedelta(seconds=total_seconds)).rstrip("0").replace(".", ",")
-        )
+        return str(timedelta(seconds=total_seconds)).rstrip("0").replace(".", ",")
 
         return str(timedelta(seconds=total_seconds)).rstrip("0").replace(".", ",")
 
     start_time = 0
     subtitles = []
 
-    for i, (sentence, audio_file) in enumerate(
-        zip(sentences, audio_files), start=1
-    ):
-        # Create a stream object from the audio file
-        ffmpeg.input(audio_file)
+    for i, (sentence, audio_file) in enumerate(zip(sentences, audio_files), start=1):
+      
         # Get the duration of the audio stream in seconds
         duration = pydub.AudioSegment.from_mp3(audio_file).duration_seconds
         end_time = start_time + duration
 
         # Format: subtitle index, start time --> end time, sentence
-        subtitle_entry = f"{i}\n{convert_to_srt_time_format(start_time)} --> {convert_to_srt_time_format(end_time)}\n{sentence}\n"
+        subtitle_entry = (
+            f"{i}\n{convert_to_srt_time_format(start_time)} --> {convert_to_srt_time_format(end_time)}\n{sentence}\n"
+        )
         subtitles.append(subtitle_entry)
         start_time += duration  # Update start time for the next subtitle
 
     return "\n".join(subtitles)
 
 
-def generate_subtitles(
-    audio_path: str, sentences: List[str], audio_clips: List[str], voice: str
-) -> str:
-
+def generate_subtitles(audio_path: str, sentences: List[str], audio_clips: List[str], voice: str) -> str:
     """Generates subtitles from a given audio file and returns the path to the subtitles.
 
     Args:
@@ -154,9 +146,7 @@ def generate_subtitles(
 
 def resize_to_portrait(video_path, input_duration, idx):
     probe = ffmpeg.probe(video_path)
-    video_stream = next(
-        s for s in probe["streams"] if s["codec_type"] == "video"
-    )
+    video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
 
     width = video_stream["width"]
     height = video_stream["height"]
@@ -185,9 +175,7 @@ def resize_to_portrait(video_path, input_duration, idx):
         ffmpeg.input(video_path, ss=0, t=input_duration)
         .video
         # Remove audio
-        .filter(
-            "crop", w=new_width, h=new_height, x=x, y=y
-        )  # Crop to the same aspect ratio
+        .filter("crop", w=new_width, h=new_height, x=x, y=y)  # Crop to the same aspect ratio
         .filter("scale", 1080, 1920)  # Resize to the same resolution
         .filter("fps", fps=30)  # Set fps to 30
         .output(
@@ -202,9 +190,7 @@ def resize_to_portrait(video_path, input_duration, idx):
 
 def resize_to_landscape(video_path, input_duration, idx):
     probe = ffmpeg.probe(video_path)
-    video_stream = next(
-        s for s in probe["streams"] if s["codec_type"] == "video"
-    )
+    video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
     video_stream = next(s for s in probe["streams"] if s["codec_type"] == "video")
     width = video_stream["width"]
     height = video_stream["height"]
@@ -215,15 +201,11 @@ def resize_to_landscape(video_path, input_duration, idx):
     # Determine cropping and resizing parameters
     if aspect_ratio > 1.7777:  # If the video is wider than 16:9
         new_height = height
-        new_width = round(
-            height * 1.7777
-        )  # Adjust width to maintain 16:9 aspect ratio
+        new_width = round(height * 1.7777)  # Adjust width to maintain 16:9 aspect ratio
         new_width = round(height * 1.7777)  # Adjust width to maintain 16:9 aspect ratio
     else:  # If the video is narrower than 16:9
         new_width = width
-        new_height = round(
-            width / 1.7777
-        )  # Adjust height to maintain 16:9 aspect ratio
+        new_height = round(width / 1.7777)  # Adjust height to maintain 16:9 aspect ratio
 
     # Ensure new dimensions are within valid ranges to avoid errors
     new_width = max(new_width, 1)  # Minimum width of 1 pixel
@@ -237,9 +219,7 @@ def resize_to_landscape(video_path, input_duration, idx):
         ffmpeg.input(video_path, ss=0, t=input_duration)
         .video
         # Remove audio
-        .filter(
-            "crop", w=new_width, h=new_height, x=x, y=y
-        )  # Crop to the same aspect ratio
+        .filter("crop", w=new_width, h=new_height, x=x, y=y)  # Crop to the same aspect ratio
         .filter("scale", 1920, 1080)  # Resize to 1920x1080 for YouTube
         .filter("fps", fps=30)  # Set fps to 30
         .output(
@@ -253,25 +233,24 @@ def resize_to_landscape(video_path, input_duration, idx):
 
 
 def loop_video(input_file, req_dur):
-  """
-  Loops an input video and creates an output of specified duration with the same filename.
+    """
+    Loops an input video and creates an output of specified duration with the same filename.
 
-  Args:
-    input_file: Path to the input video file (e.g., "input.mp4").
-    req_dur: The requested duration of the output video in seconds (float).
-  """
-  
-  # Generate a unique temporary filename within the same directory
-  base, ext = os.path.splitext(input_file)
-  temp_filename = f"{base}_temp.{ext}"
-  
-  stream = ffmpeg.input(input_file)
-  output = ffmpeg.output(stream, temp_filename, loop=-1, t=req_dur, c="copy")
-  ffmpeg.run(output)
-  
-  # Overwrite the original file with the temporary file
-  os.replace(temp_filename, input_file)
+    Args:
+      input_file: Path to the input video file (e.g., "input.mp4").
+      req_dur: The requested duration of the output video in seconds (float).
+    """
 
+    # Generate a unique temporary filename within the same directory
+    base, ext = os.path.splitext(input_file)
+    temp_filename = f"{base}_temp.{ext}"
+
+    stream = ffmpeg.input(input_file)
+    output = ffmpeg.output(stream, temp_filename, loop=-1, t=req_dur, c="copy")
+    ffmpeg.run(output)
+
+    # Overwrite the original file with the temporary file
+    os.replace(temp_filename, input_file)
 
 
 def combine_videos(
@@ -279,7 +258,6 @@ def combine_videos(
     max_duration: int,
     vformat: str,
 ) -> str:
-    
     """
     Combines a list of videos into one video and returns the path to the combined video.
 
@@ -302,13 +280,8 @@ def combine_videos(
     req_dur = max_duration / len(video_paths)
 
     print(colored("[+] Combining videos...", "blue"))
-    print(
-        colored(
-            f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"
-        )
-    )
     print(colored(f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"))
-
+    print(colored(f"[+] Each clip will be maximum {req_dur} seconds long.", "blue"))
 
     tot_dur = 0
 
@@ -323,8 +296,8 @@ def combine_videos(
             # Get the duration of the input stream
             iprobe = ffmpeg.probe(video_path)
             input_duration = float(iprobe["format"]["duration"])
-            if input_duration<req_dur:
-              loop_video(video_path, req_dur)
+            if input_duration < req_dur:
+                loop_video(video_path, req_dur)
             input_duration = float(iprobe["format"]["duration"])
             # Check if clip is longer than the remaining audio
             if (max_duration - tot_dur) < input_duration:
@@ -355,12 +328,8 @@ def combine_videos(
     for f in os.listdir("../temp"):
         if f.endswith(".mpg"):
             input_paths.append("../temp/" + f)
-    open("../temp/concat.txt", "w").writelines(
-        [("file %s\n" % input_path) for input_path in input_paths]
-    )
-    ffmpeg.input("../temp/concat.txt", format="concat", safe=0).output(
-        combined_video_path, c="copy", an=None
-    ).run()
+    open("../temp/concat.txt", "w").writelines([("file %s\n" % input_path) for input_path in input_paths])
+    ffmpeg.input("../temp/concat.txt", format="concat", safe=0).output(combined_video_path, c="copy", an=None).run()
 
     print(colored("[+] Successfully merged", "green"))
 
@@ -375,11 +344,10 @@ def generate_video(
     subtitles_path: str,
     subtitles_position: str,
 ) -> str:
-
     """This function creates the final video, with subtitles and audio.
 
 
-    
+
     Args:
         combined_video_path (str): The path to the combined video.
         tts_path (str): The path to the text-to-speech audio.
