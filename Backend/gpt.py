@@ -448,7 +448,6 @@ def generate_metadata(video_subject: str, script: str, ai_model: str, g4f_model)
 
     description = generate_response(description_prompt, ai_model, g4f_model).strip()
 
-    description = generate_response(description_prompt, ai_model, g4f_model).strip()
 
     # Generate keywords
     keywords = get_search_terms(video_subject, 6, script, ai_model, g4f_model)
