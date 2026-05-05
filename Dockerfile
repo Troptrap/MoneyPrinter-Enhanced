@@ -1,4 +1,4 @@
-FROM python:3.11-slim-buster
+FROM python:3.11-slim-bookworm
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential autoconf pkg-config wget ghostscript curl libpng-dev
