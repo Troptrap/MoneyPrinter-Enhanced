@@ -56,7 +56,7 @@ def search_for_stock_videos(query: str, api_key: str, it: int, min_dur: int) -> 
 
     except Exception as e:
         print(colored("[-] No Videos found.", "red"))
-        print(colored(e, "red"))
+        print(colored(str(e), "red"))
 
     # Let user know
     print(colored(f'\t=> "{query}" found {len(video_url)} Videos', "cyan"))
