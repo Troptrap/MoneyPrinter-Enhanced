@@ -131,11 +131,9 @@ const cancelGeneration = () => {
 		.then((response) => response.json())
 		.then((data) => {
 			alert(data.message);
-			console.log(data);
 		})
 		.catch((error) => {
 			alert("An error occurred. Please try again later.");
-			console.log(error);
 		});
 
 	// Hide cancel button
